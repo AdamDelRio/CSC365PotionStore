@@ -21,9 +21,8 @@ def reset():
 def get_shop_info():
     """ """
 
-    # TODO: Change me!
     return {
-        "shop_name": "Potion Shop",
-        "shop_owner": "Potion Seller",
+        "shop_name": "Adam's Advantageous Analgesics",
+        "shop_owner": "Adam Del Rio",
     }
 
