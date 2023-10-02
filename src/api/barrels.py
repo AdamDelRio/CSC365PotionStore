@@ -68,7 +68,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             break
     
 
-    if(red_potions < 10 and small_red_barrel.price < gold_quantity):
+    if(red_potions < 10 and small_red_barrel.price <= gold_quantity):
         return [
             {
                 "sku": "SMALL_RED_BARREL",
