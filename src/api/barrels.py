@@ -136,7 +136,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         else:
             barrel_catalog["blue"]["medium"] = item
 
-    while(gold_quantity >= 120):
+    while(gold_quantity >= 0):
         mls = sorted([tot_green, tot_red, tot_blue])
         if(gold_quantity <= 220):
             if(mls[0] == tot_green and barrel_catalog["green"]["mini"] is not None and green_potions <= 15):
