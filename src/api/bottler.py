@@ -121,6 +121,7 @@ def get_bottle_plan():
         "potion_type": [0, 0, 100, 0],
         "quantity": num_blue_ml // 100,
     }
+    if num_blue_ml >= 100 else{}
     ]
     
     return bot_list
