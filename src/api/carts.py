@@ -85,6 +85,9 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             ", num_blue_potions = " + str(num_blue_potions - sell_blue_potions) +
             ", gold = " + str(gold_quantity + total_cost)
             ))
+            connection.execute(sqlalchemy.text(
+            "UPDATE cart_ids SET num_red_potions = 0, num_green_potions = 0, num_blue_potions = 0"
+            ))
         return {"total_potions_bought": sell_blue_potions + sell_green_potions + sell_red_potions, "total_gold_paid": total_cost}
 
     else:
