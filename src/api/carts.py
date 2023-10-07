@@ -14,19 +14,25 @@ router = APIRouter(
 class NewCart(BaseModel):
     customer: str
 
-cart_id_counter = 1
-
 @router.post("/")
 def create_cart(new_cart: NewCart):
     """ """
-    global cart_id_counter
-    cart_id = cart_id_counter
-    cart_id_counter += 1
-
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(f"INSERT INTO cart_ids (cart_id, customer) VALUES ({cart_id}, '{new_cart.customer}')"))
+        customer_names_col = connection.execute(sqlalchemy.text("SELECT customer FROM cart_ids"))
+
+    customer_names = [row[0] for row in customer_names_col]
+
+    if(new_cart.customer not in customer_names):
+        with db.engine.begin() as connection:
+            cart_id = connection.execute(sqlalchemy.text("SELECT MAX(cart_id) FROM cart_ids")).first().cart_id
+            connection.execute(sqlalchemy.text(f"INSERT INTO cart_ids (cart_id, customer) VALUES ({cart_id + 1}, '{new_cart.customer}')"))
             
-    return {"cart_id": cart_id}
+        return {"cart_id": cart_id + 1}
+    else:
+        with db.engine.begin() as connection:
+            cart_id = connection.execute(sqlalchemy.text(f"SELECT cart_id FROM cart_ids WHERE customer = '{new_cart.customer}'")).first().cart_id
+    
+        return {"cart_id": cart_id}
 
 
 @router.get("/{cart_id}")
