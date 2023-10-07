@@ -20,28 +20,33 @@ def get_catalog():
 
 
     # Can return a max of 20 items.
-    cat_list = [
-    {
-        "sku": "RED_POTION_0",
-        "name": "red potion",
-        "quantity": red_potion_quantity,
-        "price": 85,
-        "potion_type": [100, 0, 0, 0],
-    } if red_potion_quantity > 0 else {},
-    {
-        "sku": "BLUE_POTION_0",
-        "name": "blue potion",
-        "quantity": blue_potion_quantity,
-        "price": 100,
-        "potion_type": [0, 0, 100, 0],
-    } if blue_potion_quantity > 0 else {},
-    {
-        "sku": "GREEN_POTION_0",
-        "name": "green potion",
-        "quantity": green_potion_quantity,
-        "price": 85,
-        "potion_type": [0, 100, 0, 0],
-    } if green_potion_quantity > 0 else {}
-    ]
+    cat_list = []
+
+    if red_potion_quantity > 0:
+        cat_list.append({
+            "sku": "RED_POTION_0",
+            "name": "red potion",
+            "quantity": red_potion_quantity,
+            "price": 85,
+            "potion_type": [100, 0, 0, 0],
+        })
+
+    if blue_potion_quantity > 0:
+        cat_list.append({
+            "sku": "BLUE_POTION_0",
+            "name": "blue potion",
+            "quantity": blue_potion_quantity,
+            "price": 100,
+            "potion_type": [0, 0, 100, 0],
+        })
+
+    if green_potion_quantity > 0:
+        cat_list.append({
+            "sku": "GREEN_POTION_0",
+            "name": "green potion",
+            "quantity": green_potion_quantity,
+            "price": 85,
+            "potion_type": [0, 100, 0, 0],
+        })
 
     return cat_list

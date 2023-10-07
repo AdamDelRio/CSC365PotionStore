@@ -106,23 +106,26 @@ def get_bottle_plan():
     with db.engine.begin() as connection:
         num_blue_ml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).first().num_blue_ml
 
-    bot_list = [
-    {
-        "potion_type": [100, 0, 0, 0],
-        "quantity": num_red_ml // 100,
-    }
-    if num_red_ml >= 100 else {},
-    {
-        "potion_type": [0, 100, 0, 0],
-        "quantity": num_green_ml // 100,
-    }
-    if num_green_ml >= 100 else {},
-    {
-        "potion_type": [0, 0, 100, 0],
-        "quantity": num_blue_ml // 100,
-    }
-    if num_blue_ml >= 100 else{}
-    ]
+
+    bot_list = []
+    
+    if num_red_ml >= 100:
+        bot_list.append({
+            "potion_type": [100, 0, 0, 0],
+            "quantity": num_red_ml // 100,
+        })
+
+    if num_green_ml >= 100:
+        bot_list.append({
+            "potion_type": [0, 100, 0, 0],
+            "quantity": num_green_ml // 100,
+        })
+
+    if num_blue_ml >= 100:
+        bot_list.append({
+            "potion_type": [0, 0, 100, 0],
+            "quantity": num_blue_ml // 100,
+        })
     
     return bot_list
 
