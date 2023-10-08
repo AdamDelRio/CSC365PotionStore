@@ -20,19 +20,24 @@ def create_cart(new_cart: NewCart):
     with db.engine.begin() as connection:
         customer_names_col = connection.execute(sqlalchemy.text("SELECT customer FROM cart_ids"))
 
-    customer_names = [row[0] for row in customer_names_col]
-
-    if(new_cart.customer not in customer_names):
+    if(customer_names[0] is None):
         with db.engine.begin() as connection:
-            cart_id = connection.execute(sqlalchemy.text("SELECT MAX(cart_id) FROM cart_ids")).first().cart_id
-            connection.execute(sqlalchemy.text(f"INSERT INTO cart_ids (cart_id, customer) VALUES ({cart_id + 1}, '{new_cart.customer}')"))
-            
-        return {"cart_id": cart_id + 1}
+            connection.execute(sqlalchemy.text(f"INSERT INTO cart_ids (cart_id, customer) VALUES (1, '{new_cart.customer}')"))
+        return {"cart_id": 1}
     else:
-        with db.engine.begin() as connection:
-            cart_id = connection.execute(sqlalchemy.text(f"SELECT cart_id FROM cart_ids WHERE customer = '{new_cart.customer}'")).first().cart_id
-    
-        return {"cart_id": cart_id}
+        customer_names = [row[0] for row in customer_names_col]
+
+        if(new_cart.customer not in customer_names):
+            with db.engine.begin() as connection:
+                cart_id = connection.execute(sqlalchemy.text("SELECT MAX(cart_id) FROM cart_ids")).first().cart_id
+                connection.execute(sqlalchemy.text(f"INSERT INTO cart_ids (cart_id, customer) VALUES ({cart_id + 1}, '{new_cart.customer}')"))
+                
+            return {"cart_id": cart_id + 1}
+        else:
+            with db.engine.begin() as connection:
+                cart_id = connection.execute(sqlalchemy.text(f"SELECT cart_id FROM cart_ids WHERE customer = '{new_cart.customer}'")).first().cart_id
+        
+            return {"cart_id": cart_id}
 
 
 @router.get("/{cart_id}")
@@ -83,7 +88,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
     
     if(num_red_potions >= sell_red_potions and num_blue_potions >= sell_blue_potions and num_green_potions >= sell_green_potions):
-        total_cost = sell_red_potions * 85 + sell_green_potions * 85 + sell_blue_potions * 100
+        total_cost = sell_red_potions * 80 + sell_green_potions * 80 + sell_blue_potions * 90
         with db.engine.begin() as connection:
             connection.execute(sqlalchemy.text(
             "UPDATE global_inventory SET num_red_potions = " + str(num_red_potions - sell_red_potions) +
