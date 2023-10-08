@@ -28,7 +28,7 @@ def create_cart(new_cart: NewCart):
         customer_names = [row[0] for row in customer_names_col]
         if(new_cart.customer not in customer_names):
             with db.engine.begin() as connection:
-                cart_id = connection.execute(sqlalchemy.text("SELECT MAX(cart_id) FROM cart_ids")).first().cart_id
+                cart_id = connection.execute(sqlalchemy.text("SELECT MAX(cart_id) FROM cart_ids")).scalar()
                 connection.execute(sqlalchemy.text(f"INSERT INTO cart_ids (cart_id, customer) VALUES ({cart_id + 1}, '{new_cart.customer}')"))
                 
             return {"cart_id": cart_id + 1}
