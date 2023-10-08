@@ -150,6 +150,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 60
                 tot_green += 200
+                barrel_catalog["green"]["mini"].quantity -= 1
+                if(barrel_catalog["green"]["mini"].quantity == 0):
+                    barrel_catalog["green"]["mini"] = None
             elif(mls[0] == tot_red and barrel_catalog["red"]["mini"] is not None and red_potions <= 15 and gold_quantity >= 60):
                 bar_list.append(
                     {
@@ -159,6 +162,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 60
                 tot_red += 200
+                barrel_catalog["red"]["mini"].quantity -= 1
+                if(barrel_catalog["red"]["mini"].quantity == 0):
+                    barrel_catalog["red"]["mini"] = None
             elif(mls[0] == tot_blue and barrel_catalog["blue"]["mini"] is not None and blue_potions <= 15 and gold_quantity >= 60):
                 bar_list.append(
                     {
@@ -168,6 +174,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 60
                 tot_blue += 200
+                barrel_catalog["blue"]["mini"].quantity -= 1
+                if(barrel_catalog["blue"]["mini"].quantity == 0):
+                    barrel_catalog["blue"]["mini"] = None
 
         elif(gold_quantity <= 550 or (barrel_catalog["green"]["medium"] is None and barrel_catalog["red"]["medium"] is None and barrel_catalog["blue"]["medium"] is None)):
             if(mls[0] == tot_green and barrel_catalog["green"]["small"] is not None and green_potions <= 15 and gold_quantity >= 100):
@@ -179,6 +188,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 100
                 tot_green += 500
+                barrel_catalog["green"]["small"].quantity -= 1
+                if(barrel_catalog["green"]["small"].quantity == 0):
+                    barrel_catalog["green"]["small"] = None
             elif(mls[0] == tot_red and barrel_catalog["red"]["small"] is not None and red_potions <= 15 and gold_quantity >= 100):
                 bar_list.append(
                     {
@@ -188,6 +200,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 100
                 tot_red += 500
+                barrel_catalog["red"]["small"].quantity -= 1
+                if(barrel_catalog["red"]["small"].quantity == 0):
+                    barrel_catalog["red"]["small"] = None
             elif(mls[0] == tot_blue and barrel_catalog["blue"]["small"] is not None and blue_potions <= 15 and gold_quantity >= 120):
                 bar_list.append(
                     {
@@ -197,6 +212,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 120
                 tot_blue += 500
+                barrel_catalog["blue"]["small"].quantity -= 1
+                if(barrel_catalog["blue"]["small"].quantity == 0):
+                    barrel_catalog["blue"]["small"] = None
 
         else:
             if(mls[0] == tot_green and barrel_catalog["green"]["medium"] is not None and green_potions <= 15 and gold_quantity >= 250):
@@ -208,6 +226,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 250
                 tot_green += 2500
+                barrel_catalog["green"]["medium"].quantity -= 1
+                if(barrel_catalog["green"]["medium"].quantity == 0):
+                    barrel_catalog["green"]["medium"] = None
             elif(mls[0] == tot_red and barrel_catalog["red"]["medium"] is not None and red_potions <= 15 and gold_quantity >= 250):
                 bar_list.append(
                     {
@@ -217,6 +238,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 250
                 tot_red += 2500
+                barrel_catalog["red"]["medium"].quantity -= 1
+                if(barrel_catalog["red"]["medium"].quantity == 0):
+                    barrel_catalog["red"]["medium"] = None
             elif(mls[0] == tot_blue and barrel_catalog["blue"]["medium"] is not None and blue_potions <= 15 and gold_quantity >= 300):
                 bar_list.append(
                     {
@@ -226,6 +250,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= 300
                 tot_blue += 2500
+                barrel_catalog["blue"]["medium"].quantity -= 1
+                if(barrel_catalog["blue"]["medium"].quantity == 0):
+                    barrel_catalog["blue"]["medium"] = None
 
         if gold_quantity == prev_gold_quantity:
             break
