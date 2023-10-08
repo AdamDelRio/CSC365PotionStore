@@ -18,15 +18,14 @@ class NewCart(BaseModel):
 def create_cart(new_cart: NewCart):
     """ """
     with db.engine.begin() as connection:
-        customer_names_col = connection.execute(sqlalchemy.text("SELECT customer FROM cart_ids"))
+        customer_names_col = connection.execute(sqlalchemy.text("SELECT customer FROM cart_ids")).fetchall()
 
-    if(customer_names[0] is None):
+    if(customer_names_col[0] is None):
         with db.engine.begin() as connection:
             connection.execute(sqlalchemy.text(f"INSERT INTO cart_ids (cart_id, customer) VALUES (1, '{new_cart.customer}')"))
         return {"cart_id": 1}
     else:
         customer_names = [row[0] for row in customer_names_col]
-
         if(new_cart.customer not in customer_names):
             with db.engine.begin() as connection:
                 cart_id = connection.execute(sqlalchemy.text("SELECT MAX(cart_id) FROM cart_ids")).first().cart_id
