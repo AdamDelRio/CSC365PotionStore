@@ -87,7 +87,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
     
     if(num_red_potions >= sell_red_potions and num_blue_potions >= sell_blue_potions and num_green_potions >= sell_green_potions):
-        total_cost = sell_red_potions * 80 + sell_green_potions * 80 + sell_blue_potions * 1
+        total_cost = sell_red_potions * 65 + sell_green_potions * 65 + sell_blue_potions * 70
         with db.engine.begin() as connection:
             connection.execute(sqlalchemy.text(
             "UPDATE global_inventory SET num_red_potions = " + str(num_red_potions - sell_red_potions) +
