@@ -29,12 +29,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         total_price += item.price
         
     with db.engine.begin() as connection:
-        gold_quantity = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).first().gold
-
-    gold_quantity = gold_quantity - total_price
-
-    with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = " + str(gold_quantity)))
+        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = gold - {total_price}"))
 
     total_red_ml = 0
     total_blue_ml = 0
@@ -48,18 +43,8 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
             total_blue_ml += item.ml_per_barrel
 
     with db.engine.begin() as connection:
-        num_red_ml = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).first().num_red_ml
-        num_green_ml = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).first().num_green_ml
-        num_blue_ml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).first().num_blue_ml
+        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_ml = num_red_ml + {total_red_ml}, num_green_ml = num_green_ml + {total_green_ml}, num_blue_ml = num_blue_ml + {total_blue_ml}"))
 
-    num_red_ml += total_red_ml
-    num_green_ml += total_green_ml
-    num_blue_ml += total_blue_ml
-
-    with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = " + str(num_red_ml)))
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = " + str(num_green_ml)))
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_blue_ml = " + str(num_blue_ml)))
 
     return "OK"
 
@@ -70,31 +55,19 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     print(wholesale_catalog)
 
     with db.engine.begin() as connection:
-        red_potions = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).first().num_red_potions
-
-    with db.engine.begin() as connection:
-        blue_potions = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).first().num_blue_potions
-
-    with db.engine.begin() as connection:
-        green_potions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).first().num_green_potions
-
-    with db.engine.begin() as connection:
         red_ml = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).first().num_red_ml
-
-    with db.engine.begin() as connection:
         blue_ml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).first().num_blue_ml
-
-    with db.engine.begin() as connection:
         green_ml = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).first().num_green_ml
-
-    with db.engine.begin() as connection:
         gold_quantity = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).first().gold
+        red_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(red_ml) FROM potion")).scalar()
+        green_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(green_ml) FROM potion")).scalar()
+        blue_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(blue_ml) FROM potion")).scalar()
     
-    tot_green = green_potions * 100 + green_ml
+    tot_red = red_ml // (red_ml_takes / 100)
 
-    tot_red = red_potions * 100 + red_ml
+    tot_blue = blue_ml // (blue_ml_takes / 100)
 
-    tot_blue = blue_potions * 100 + blue_ml
+    tot_green = green_ml // (green_ml_takes / 100)
 
     bar_list = []
 
@@ -141,7 +114,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     while(gold_quantity >= 0):
         mls = sorted([tot_green, tot_red, tot_blue])
         if(gold_quantity <= 220 or (barrel_catalog["red"]["small"] is None and barrel_catalog["red"]["medium"] is None and barrel_catalog["green"]["small"] is None and barrel_catalog["green"]["medium"] is None and barrel_catalog["blue"]["small"] is None and barrel_catalog["blue"]["medium"] is None)):
-            if(mls[0] == tot_green and barrel_catalog["green"]["mini"] is not None and green_potions <= 15 and gold_quantity >= 60):
+            if(mls[0] == tot_green and barrel_catalog["green"]["mini"] is not None and gold_quantity >= 60):
                 bar_list.append(
                     {
                 "sku": "MINI_GREEN_BARREL",
@@ -153,7 +126,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["green"]["mini"].quantity -= 1
                 if(barrel_catalog["green"]["mini"].quantity == 0):
                     barrel_catalog["green"]["mini"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["mini"] is not None and red_potions <= 15 and gold_quantity >= 60):
+            elif(mls[0] == tot_red and barrel_catalog["red"]["mini"] is not None and gold_quantity >= 60):
                 bar_list.append(
                     {
                 "sku": "MINI_RED_BARREL",
@@ -165,7 +138,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["red"]["mini"].quantity -= 1
                 if(barrel_catalog["red"]["mini"].quantity == 0):
                     barrel_catalog["red"]["mini"] = None
-            elif(mls[0] == tot_blue and barrel_catalog["blue"]["mini"] is not None and blue_potions <= 15 and gold_quantity >= 60):
+            elif(mls[0] == tot_blue and barrel_catalog["blue"]["mini"] is not None and gold_quantity >= 60):
                 bar_list.append(
                     {
                 "sku": "MINI_BLUE_BARREL",
@@ -179,7 +152,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     barrel_catalog["blue"]["mini"] = None
 
         elif(gold_quantity <= 550 or (barrel_catalog["green"]["medium"] is None and barrel_catalog["red"]["medium"] is None and barrel_catalog["blue"]["medium"] is None)):
-            if(mls[0] == tot_green and barrel_catalog["green"]["small"] is not None and green_potions <= 15 and gold_quantity >= 100):
+            if(mls[0] == tot_green and barrel_catalog["green"]["small"] is not None and gold_quantity >= 100):
                 bar_list.append(
                     {
                 "sku": "SMALL_GREEN_BARREL",
@@ -191,7 +164,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["green"]["small"].quantity -= 1
                 if(barrel_catalog["green"]["small"].quantity == 0):
                     barrel_catalog["green"]["small"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["small"] is not None and red_potions <= 15 and gold_quantity >= 100):
+            elif(mls[0] == tot_red and barrel_catalog["red"]["small"] is not None and gold_quantity >= 100):
                 bar_list.append(
                     {
                 "sku": "SMALL_RED_BARREL",
@@ -203,7 +176,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["red"]["small"].quantity -= 1
                 if(barrel_catalog["red"]["small"].quantity == 0):
                     barrel_catalog["red"]["small"] = None
-            elif(mls[0] == tot_blue and barrel_catalog["blue"]["small"] is not None and blue_potions <= 15 and gold_quantity >= 120):
+            elif(mls[0] == tot_blue and barrel_catalog["blue"]["small"] is not None and gold_quantity >= 120):
                 bar_list.append(
                     {
                 "sku": "SMALL_BLUE_BARREL",
@@ -217,7 +190,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     barrel_catalog["blue"]["small"] = None
 
         else:
-            if(mls[0] == tot_green and barrel_catalog["green"]["medium"] is not None and green_potions <= 15 and gold_quantity >= 250):
+            if(mls[0] == tot_green and barrel_catalog["green"]["medium"] is not None and gold_quantity >= 250):
                 bar_list.append(
                     {
                 "sku": "MEDIUM_GREEN_BARREL",
@@ -229,7 +202,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["green"]["medium"].quantity -= 1
                 if(barrel_catalog["green"]["medium"].quantity == 0):
                     barrel_catalog["green"]["medium"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["medium"] is not None and red_potions <= 15 and gold_quantity >= 250):
+            elif(mls[0] == tot_red and barrel_catalog["red"]["medium"] is not None and gold_quantity >= 250):
                 bar_list.append(
                     {
                 "sku": "MEDIUM_RED_BARREL",
@@ -241,7 +214,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["red"]["medium"].quantity -= 1
                 if(barrel_catalog["red"]["medium"].quantity == 0):
                     barrel_catalog["red"]["medium"] = None
-            elif(mls[0] == tot_blue and barrel_catalog["blue"]["medium"] is not None and blue_potions <= 15 and gold_quantity >= 300):
+            elif(mls[0] == tot_blue and barrel_catalog["blue"]["medium"] is not None and gold_quantity >= 300):
                 bar_list.append(
                     {
                 "sku": "MEDIUM_BLUE_BARREL",

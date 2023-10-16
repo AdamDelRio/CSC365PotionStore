@@ -15,27 +15,18 @@ router = APIRouter(
 def get_inventory():
     """ """
     with db.engine.begin() as connection:
-        num_red_ml = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).first().num_red_ml
+        result_potions = connection.execute(
+            sqlalchemy.text(
+                "SELECT SUM(quantity) FROM potion"
+            )
+        ).first()[0]
+        result_ml = connection.execute(
+            sqlalchemy.text(
+                "SELECT num_red_ml, num_blue_ml, num_green_ml, gold FROM global_inventory"
+            )
+        ).first()
     
-    with db.engine.begin() as connection:
-        num_red_potions = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).first().num_red_potions
-
-    with db.engine.begin() as connection:
-        num_blue_ml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).first().num_blue_ml
-    
-    with db.engine.begin() as connection:
-        num_blue_potions = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).first().num_blue_potions
-
-    with db.engine.begin() as connection:
-        num_green_ml = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).first().num_green_ml
-    
-    with db.engine.begin() as connection:
-        num_green_potions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).first().num_green_potions
-
-    with db.engine.begin() as connection:
-        gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).first().gold
-    
-    return {"number_of_potions": num_red_potions + num_blue_potions + num_green_potions, "ml_in_barrels": num_red_ml + num_green_ml + num_blue_ml, "gold": gold}
+    return {"number_of_potions": result_potions, "ml_in_barrels": result_ml.num_red_ml + result_ml.num_green_ml + result_ml.num_blue_ml, "gold": result_ml.gold}
 
 class Result(BaseModel):
     gold_match: bool
