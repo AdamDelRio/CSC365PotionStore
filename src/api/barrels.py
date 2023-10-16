@@ -37,13 +37,13 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     total_dark_ml = 0
     for item in barrels_delivered:
         if(item.sku == "MINI_RED_BARREL" or item.sku == "SMALL_RED_BARREL" or item.sku == "MEDIUM_RED_BARREL" or item.sku == "LARGE_RED_BARREL"):
-            total_red_ml += item.ml_per_barrel
+            total_red_ml += item.ml_per_barrel * item.quantity
         elif(item.sku == "MINI_GREEN_BARREL" or item.sku == "SMALL_GREEN_BARREL" or item.sku == "MEDIUM_GREEN_BARREL" or item.sku == "LARGE_GREEN_BARREL"):
-            total_green_ml += item.ml_per_barrel
+            total_green_ml += item.ml_per_barrel * item.quantity
         elif(item.sku == "MINI_BLUE_BARREL" or item.sku == "SMALL_BLUE_BARREL" or item.sku == "MEDIUM_BLUE_BARREL" or item.sku == "LARGE_BLUE_BARREL"):
-            total_blue_ml += item.ml_per_barrel
+            total_blue_ml += item.ml_per_barrel * item.quantity
         elif(item.sku == "MINI_DARK_BARREL" or item.sku == "SMALL_DARK_BARREL" or item.sku == "MEDIUM_DARK_BARREL" or item.sku == "LARGE_DARK_BARREL"):
-            total_dark_ml += item.ml_per_barrel
+            total_dark_ml += item.ml_per_barrel * item.quantity
 
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_ml = num_red_ml + {total_red_ml}, num_green_ml = num_green_ml + {total_green_ml}, num_blue_ml = num_blue_ml + {total_blue_ml}, num_dark_ml = num_dark_ml + {total_dark_ml}"))
