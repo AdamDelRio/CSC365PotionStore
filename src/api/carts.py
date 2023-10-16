@@ -86,6 +86,5 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                 connection.execute(sqlalchemy.text(f"UPDATE potion SET quantity = quantity - {quantity} WHERE potion_id = {potion_id}"))
                 connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = gold + {total_cost}"))
                 connection.execute(sqlalchemy.text(f"DELETE FROM cart_items WHERE potion_id = {potion_id} AND cart_id = {cart_id}"))
-                connection.execute(sqlalchemy.text(f"UPDATE potion SET quantity = quantity - {quantity} WHERE potion_id = {potion_id}"))
 
     return {"total_potions_bought": total_bought, "total_gold_paid": total_cost}
