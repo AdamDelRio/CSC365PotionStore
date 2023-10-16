@@ -22,11 +22,11 @@ def get_inventory():
         ).first()[0]
         result_ml = connection.execute(
             sqlalchemy.text(
-                "SELECT num_red_ml, num_blue_ml, num_green_ml, gold FROM global_inventory"
+                "SELECT num_red_ml, num_blue_ml, num_green_ml, num_dark_ml, gold FROM global_inventory"
             )
         ).first()
     
-    return {"number_of_potions": result_potions, "ml_in_barrels": result_ml.num_red_ml + result_ml.num_green_ml + result_ml.num_blue_ml, "gold": result_ml.gold}
+    return {"number_of_potions": result_potions, "ml_in_barrels": result_ml.num_red_ml + result_ml.num_green_ml + result_ml.num_blue_ml + result_ml.num_dark_ml, "gold": result_ml.gold}
 
 class Result(BaseModel):
     gold_match: bool

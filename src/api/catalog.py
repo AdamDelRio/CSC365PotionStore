@@ -17,7 +17,6 @@ def get_catalog():
 
     for potion in potion_info:
         cat_list.append({
-            "potion_id": potion.potion_id,
             "sku": potion.sku,
             "name": potion.name,
             "quantity": potion.quantity,
