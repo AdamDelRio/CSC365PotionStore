@@ -29,7 +29,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         total_price += item.price
         
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = gold - {total_price}"))
+        connection.execute(sqlalchemy.text(f"INSERT INTO gold_ledger (entry, change, description) VALUES ('deliver', -{total_price}, 'Delivering barrels')"))
 
     total_red_ml = 0
     total_blue_ml = 0
@@ -46,8 +46,10 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
             total_dark_ml += item.ml_per_barrel * item.quantity
 
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_ml = num_red_ml + {total_red_ml}, num_green_ml = num_green_ml + {total_green_ml}, num_blue_ml = num_blue_ml + {total_blue_ml}, num_dark_ml = num_dark_ml + {total_dark_ml}"))
-
+        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('red', 'deliver', {total_red_ml}, 'Delivering red barrels')"))
+        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('green', 'deliver', {total_green_ml}, 'Delivering green barrels')"))
+        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('blue', 'deliver', {total_blue_ml}, 'Delivering blue barrels')"))
+        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('dark', 'deliver', {total_dark_ml}, 'Delivering dark barrels')"))
 
     return "OK"
 
@@ -58,22 +60,19 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     print(wholesale_catalog)
 
     with db.engine.begin() as connection:
-        red_ml = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).first().num_red_ml
-        blue_ml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).first().num_blue_ml
-        green_ml = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).first().num_green_ml
-        dark_ml = connection.execute(sqlalchemy.text("SELECT num_dark_ml FROM global_inventory")).first().num_dark_ml
-        gold_quantity = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).first().gold
-        red_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(red_ml) FROM potion")).scalar()
-        green_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(green_ml) FROM potion")).scalar()
-        blue_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(blue_ml) FROM potion")).scalar()
-        dark_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(dark_ml) FROM potion")).scalar()
-    
+        red_ml = connection.execute(sqlalchemy.text("SELECT SUM(change) FROM ml_ledger WHERE color = 'red'")).first()[0]
+        blue_ml = connection.execute(sqlalchemy.text("SELECT SUM(change) FROM ml_ledger WHERE color = 'blue'")).first()[0]
+        green_ml = connection.execute(sqlalchemy.text("SELECT SUM(change) FROM ml_ledger WHERE color = 'green'")).first()[0]
+        dark_ml = connection.execute(sqlalchemy.text("SELECT SUM(change) FROM ml_ledger WHERE color = 'dark'")).first()[0]
+        red_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(red_ml) FROM potion_types")).scalar()
+        green_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(green_ml) FROM potion_types")).scalar()
+        blue_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(blue_ml) FROM potion_types")).scalar()
+        dark_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(dark_ml) FROM potion_types")).scalar()
+        gold_quantity = connection.execute(sqlalchemy.text("SELECT SUM(change) FROM gold_ledger")).scalar()
+
     tot_red = red_ml // (red_ml_takes / 100)
-
     tot_blue = blue_ml // (blue_ml_takes / 100)
-
     tot_green = green_ml // (green_ml_takes / 100)
-
     tot_dark = dark_ml // (dark_ml_takes / 100)
 
     bar_list = []

@@ -9,7 +9,13 @@ def get_catalog():
     with db.engine.begin() as connection:
         potion_info = connection.execute(
             sqlalchemy.text(
-                "SELECT potion_id, sku, name, quantity, cost, red_ml, green_ml, blue_ml, dark_ml FROM potion WHERE quantity > 0"
+                """
+                SELECT pt.potion_id, pt.sku, pt.name, pt.cost, pt.red_ml, pt.green_ml, pt.blue_ml, pt.dark_ml, 
+                COALESCE(SUM(pl.change), 0) as quantity
+                FROM potion_types pt
+                LEFT JOIN potion_ledger pl ON pt.potion_id = pl.potion_id
+                GROUP BY pt.potion_id, pt.sku, pt.name, pt.cost, pt.red_ml, pt.green_ml, pt.blue_ml, pt.dark_ml
+                """
             )
         ).fetchall()
 
@@ -25,3 +31,4 @@ def get_catalog():
         })
 
     return cat_list
+

@@ -16,10 +16,20 @@ def reset():
     inventory, and all barrels are removed from inventory. Carts are all reset.
     """
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = 0, num_blue_ml = 0, num_green_ml = 0, num_dark_ml = 0, gold = 100"))
-        connection.execute(sqlalchemy.text("UPDATE potion SET quantity = 0"))
-        connection.execute(sqlalchemy.text("DELETE FROM cart_items"))
+        connection.execute(sqlalchemy.text("DELETE FROM gold_ledger"))
+        connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('reset', 1000, 'Resetting gold balance to 100')"))
+        connection.execute(sqlalchemy.text("DELETE FROM potion_ledger"))
+        connection.execute(sqlalchemy.text("DELETE FROM customer_orders_ledger"))
         connection.execute(sqlalchemy.text("DELETE FROM cart_ids"))
+        connection.execute(sqlalchemy.text("DELETE FROM ml_ledger"))
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('red', 'reset', 0, 'Removing all red barrels from inventory')"))
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('green', 'reset', 0, 'Removing all green barrels from inventory')"))
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('blue', 'reset', 0, 'Removing all blue barrels from inventory')"))
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('dark', 'reset', 0, 'Removing all dark barrels from inventory')"))
+        potion_types = connection.execute(sqlalchemy.text("SELECT potion_id FROM potion_types"))
+        for potion_id in potion_types:
+            potion_id = potion_id[0]
+            connection.execute(sqlalchemy.text(f"INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES ('reset', 0, {potion_id}, 'Removing all potions from inventory')"))
         
     return "OK"
 

@@ -49,10 +49,17 @@ class CartItem(BaseModel):
 
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
-    """ """
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(f"INSERT INTO cart_items (cart_id, potion_id, quantity) VALUES ({cart_id}, (SELECT potion_id FROM potion WHERE sku = '{item_sku}'), {cart_item.quantity})"))
-    
+        connection.execute(sqlalchemy.text(
+            f"""
+            WITH potion_id_query AS (
+                SELECT potion_id FROM potion_types WHERE sku = '{item_sku}'
+            )
+            INSERT INTO customer_orders_ledger (cart_id, potion_id, quantity)
+            SELECT {cart_id}, potion_id, {cart_item.quantity} FROM potion_id_query
+            """
+        ))
+
     return "OK"
 
 
@@ -61,30 +68,25 @@ class CartCheckout(BaseModel):
 
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
-    """ """
     total_cost = 0
     total_bought = 0
     with db.engine.begin() as connection:
-        num_potions_bought = connection.execute(sqlalchemy.text(f"SELECT potion_id, quantity FROM cart_items WHERE cart_id = {cart_id}")).fetchall()
+        num_potions_bought = connection.execute(sqlalchemy.text(f"SELECT potion_id, quantity FROM customer_orders_ledger WHERE cart_id = {cart_id}")).fetchall()
     
     for row in num_potions_bought:
         potion_id, quantity = row
         with db.engine.begin() as connection:
-            potions = connection.execute(sqlalchemy.text(f"SELECT quantity, cost FROM potion WHERE potion_id = {potion_id}")).first()
+            potions = connection.execute(sqlalchemy.text(f"SELECT cost, red_ml, green_ml, blue_ml, dark_ml FROM potion_types WHERE potion_id = {potion_id}")).first()
         
-        num_potions = potions.quantity
         cost_potions = potions.cost
-        if num_potions < quantity:
-            with db.engine.begin() as connection:
-                connection.execute(sqlalchemy.text(f"DELETE FROM cart_items WHERE cart_id = {cart_id}"))
+        total_cost += cost_potions * quantity
+        total_bought += quantity
 
-            return {"total_potions_bought": 0, "total_gold_paid": 0}
-        else:
-            total_cost += cost_potions * quantity
-            total_bought += quantity
-            with db.engine.begin() as connection:
-                connection.execute(sqlalchemy.text(f"UPDATE potion SET quantity = quantity - {quantity} WHERE potion_id = {potion_id}"))
-                connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = gold + {total_cost}"))
-                connection.execute(sqlalchemy.text(f"DELETE FROM cart_items WHERE potion_id = {potion_id} AND cart_id = {cart_id}"))
+        with db.engine.begin() as connection:
+            connection.execute(sqlalchemy.text(f"INSERT INTO gold_ledger (entry, change, description) VALUES ('checkout', {total_cost}, 'Checkout operation')"))
+            connection.execute(sqlalchemy.text(f"DELETE FROM customer_orders_ledger WHERE potion_id = {potion_id} AND cart_id = {cart_id}"))
+            connection.execute(sqlalchemy.text(
+                f"INSERT INTO potion_ledger (potion_id, entry, change, description) VALUES ({potion_id}, 'checkout', -{quantity}, 'Checkout operation')"
+            ))
 
     return {"total_potions_bought": total_bought, "total_gold_paid": total_cost}
