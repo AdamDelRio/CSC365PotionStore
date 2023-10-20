@@ -17,7 +17,7 @@ def reset():
     """
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text("DELETE FROM gold_ledger"))
-        connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('reset', 1000, 'Resetting gold balance to 100')"))
+        connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('reset', 100, 'Resetting gold balance to 100')"))
         connection.execute(sqlalchemy.text("DELETE FROM potion_ledger"))
         connection.execute(sqlalchemy.text("DELETE FROM customer_orders_ledger"))
         connection.execute(sqlalchemy.text("DELETE FROM cart_ids"))
