@@ -15,6 +15,7 @@ def get_catalog():
                 FROM potion_types pt
                 LEFT JOIN potion_ledger pl ON pt.potion_id = pl.potion_id
                 GROUP BY pt.potion_id, pt.sku, pt.name, pt.cost, pt.red_ml, pt.green_ml, pt.blue_ml, pt.dark_ml
+                HAVING COALESCE(SUM(pl.change), 0) > 0
                 """
             )
         ).fetchall()
@@ -22,13 +23,13 @@ def get_catalog():
     cat_list = []
 
     for potion in potion_info:
-        cat_list.append({
-            "sku": potion.sku,
-            "name": potion.name,
-            "quantity": potion.quantity,
-            "price": potion.cost,
-            "potion_type": [potion.red_ml, potion.green_ml, potion.blue_ml, potion.dark_ml],
-        })
+        if potion.quantity > 0:
+            cat_list.append({
+                "sku": potion.sku,
+                "name": potion.name,
+                "quantity": potion.quantity,
+                "price": potion.cost,
+                "potion_type": [potion.red_ml, potion.green_ml, potion.blue_ml, potion.dark_ml],
+            })
 
     return cat_list
-
