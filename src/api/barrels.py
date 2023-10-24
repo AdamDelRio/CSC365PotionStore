@@ -142,158 +142,236 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     while(gold_quantity >= 0):
         mls = sorted([tot_dark, tot_blue, tot_red, tot_green])
-        if(gold_quantity <= 220 or (barrel_catalog["red"]["small"] is None and barrel_catalog["red"]["medium"] is None and barrel_catalog["red"]["large"] is None and barrel_catalog["green"]["small"] is None and barrel_catalog["green"]["medium"] is None and barrel_catalog["green"]["large"] is None and barrel_catalog["blue"]["small"] is None and barrel_catalog["blue"]["medium"] is None and barrel_catalog["blue"]["large"] is None and barrel_catalog["dark"]["small"] is None and barrel_catalog["dark"]["medium"] is None and barrel_catalog["dark"]["large"] is None)):
-            if(mls[0] == tot_green and barrel_catalog["green"]["mini"] is not None and gold_quantity >= barrel_catalog["green"]["mini"].price):
-                bar_list.append(
-                    {
-                "sku": "MINI_GREEN_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["green"]["mini"].price
-                tot_green += barrel_catalog["green"]["mini"].ml_per_barrel
-                barrel_catalog["green"]["mini"].quantity -= 1
-                if(barrel_catalog["green"]["mini"].quantity == 0):
-                    barrel_catalog["green"]["mini"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["mini"] is not None and gold_quantity >= barrel_catalog["red"]["mini"].price):
-                bar_list.append(
-                    {
-                "sku": "MINI_RED_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["red"]["mini"].price
-                tot_red += barrel_catalog["red"]["mini"].ml_per_barrel
-                barrel_catalog["red"]["mini"].quantity -= 1
-                if(barrel_catalog["red"]["mini"].quantity == 0):
-                    barrel_catalog["red"]["mini"] = None
-            elif(mls[0] == tot_blue and barrel_catalog["blue"]["mini"] is not None and gold_quantity >= barrel_catalog["blue"]["mini"].price):
-                bar_list.append(
-                    {
-                "sku": "MINI_BLUE_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["blue"]["mini"].price
-                tot_blue += barrel_catalog["blue"]["mini"].ml_per_barrel
-                barrel_catalog["blue"]["mini"].quantity -= 1
-                if(barrel_catalog["blue"]["mini"].quantity == 0):
-                    barrel_catalog["blue"]["mini"] = None
-            elif(mls[0] == tot_dark and barrel_catalog["dark"]["mini"] is not None and gold_quantity >= barrel_catalog["dark"]["mini"].price):
-                bar_list.append(
-                    {
-                "sku": "MINI_DARK_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["dark"]["mini"].price
-                tot_dark += barrel_catalog["dark"]["mini"].ml_per_barrel
-                barrel_catalog["dark"]["mini"].quantity -= 1
-                if(barrel_catalog["dark"]["mini"].quantity == 0):
-                    barrel_catalog["dark"]["mini"] = None
+        if(gold_quantity <= 220 or (barrel_catalog["red"]["small"] in (None, "null") and barrel_catalog["red"]["medium"] in (None, "null") and barrel_catalog["red"]["large"] in (None, "null") and barrel_catalog["green"]["small"] in (None, "null") and barrel_catalog["green"]["medium"] in (None, "null") and barrel_catalog["green"]["large"] in (None, "null") and barrel_catalog["blue"]["small"] in (None, "null") and barrel_catalog["blue"]["medium"] in (None, "null") and barrel_catalog["blue"]["large"] in (None, "null") and barrel_catalog["dark"]["small"] in (None, "null") and barrel_catalog["dark"]["medium"] in (None, "null") and barrel_catalog["dark"]["large"] in (None, "null"))):
+            if(mls[0] != tot_dark):
+                if(mls[0] == tot_green and barrel_catalog["green"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["mini"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MINI_GREEN_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["green"]["mini"].price
+                    tot_green += barrel_catalog["green"]["mini"].ml_per_barrel
+                    barrel_catalog["green"]["mini"].quantity -= 1
+                    if(barrel_catalog["green"]["mini"].quantity == 0):
+                        barrel_catalog["green"]["mini"] = None
+                elif(mls[0] == tot_red and barrel_catalog["red"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["mini"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MINI_RED_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["red"]["mini"].price
+                    tot_red += barrel_catalog["red"]["mini"].ml_per_barrel
+                    barrel_catalog["red"]["mini"].quantity -= 1
+                    if(barrel_catalog["red"]["mini"].quantity == 0):
+                        barrel_catalog["red"]["mini"] = None
+                elif(mls[0] == tot_blue and barrel_catalog["blue"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["blue"]["mini"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MINI_BLUE_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["blue"]["mini"].price
+                    tot_blue += barrel_catalog["blue"]["mini"].ml_per_barrel
+                    barrel_catalog["blue"]["mini"].quantity -= 1
+                    if(barrel_catalog["blue"]["mini"].quantity == 0):
+                        barrel_catalog["blue"]["mini"] = None
+            else:
+                if(mls[1] == tot_green and barrel_catalog["green"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["mini"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MINI_GREEN_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["green"]["mini"].price
+                    tot_green += barrel_catalog["green"]["mini"].ml_per_barrel
+                    barrel_catalog["green"]["mini"].quantity -= 1
+                    if(barrel_catalog["green"]["mini"].quantity == 0):
+                        barrel_catalog["green"]["mini"] = None
+                elif(mls[1] == tot_red and barrel_catalog["red"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["mini"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MINI_RED_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["red"]["mini"].price
+                    tot_red += barrel_catalog["red"]["mini"].ml_per_barrel
+                    barrel_catalog["red"]["mini"].quantity -= 1
+                    if(barrel_catalog["red"]["mini"].quantity == 0):
+                        barrel_catalog["red"]["mini"] = None
+                elif(mls[1] == tot_blue and barrel_catalog["blue"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["blue"]["mini"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MINI_BLUE_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["blue"]["mini"].price
+                    tot_blue += barrel_catalog["blue"]["mini"].ml_per_barrel
+                    barrel_catalog["blue"]["mini"].quantity -= 1
+                    if(barrel_catalog["blue"]["mini"].quantity == 0):
+                        barrel_catalog["blue"]["mini"] = None
 
-        elif(gold_quantity <= 550 or (barrel_catalog["green"]["medium"] is None and barrel_catalog["green"]["large"] is None and barrel_catalog["red"]["medium"] is None and barrel_catalog["red"]["large"] is None and barrel_catalog["blue"]["medium"] is None and barrel_catalog["blue"]["large"] is None and barrel_catalog["dark"]["medium"] is None and barrel_catalog["dark"]["large"] is None)):
-            if(mls[0] == tot_green and barrel_catalog["green"]["small"] is not None and gold_quantity >= barrel_catalog["green"]["small"].price):
-                bar_list.append(
-                    {
-                "sku": "SMALL_GREEN_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["green"]["small"].price
-                tot_green += barrel_catalog["green"]["small"].ml_per_barrel
-                barrel_catalog["green"]["small"].quantity -= 1
-                if(barrel_catalog["green"]["small"].quantity == 0):
-                    barrel_catalog["green"]["small"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["small"] is not None and gold_quantity >= barrel_catalog["red"]["small"].price):
-                bar_list.append(
-                    {
-                "sku": "SMALL_RED_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["red"]["small"].price
-                tot_red += barrel_catalog["red"]["small"].ml_per_barrel
-                barrel_catalog["red"]["small"].quantity -= 1
-                if(barrel_catalog["red"]["small"].quantity == 0):
-                    barrel_catalog["red"]["small"] = None
-            elif(mls[0] == tot_blue and barrel_catalog["blue"]["small"] is not None and gold_quantity >= barrel_catalog["blue"]["small"].price):
-                bar_list.append(
-                    {
-                "sku": "SMALL_BLUE_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["blue"]["small"].price
-                tot_blue += barrel_catalog["blue"]["small"].ml_per_barrel
-                barrel_catalog["blue"]["small"].quantity -= 1
-                if(barrel_catalog["blue"]["small"].quantity == 0):
-                    barrel_catalog["blue"]["small"] = None
-            elif(mls[0] == tot_dark and barrel_catalog["dark"]["small"] is not None and gold_quantity >= barrel_catalog["dark"]["small"].price):
-                bar_list.append(
-                    {
-                "sku": "SMALL_DARK_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["dark"]["small"].price
-                tot_dark += barrel_catalog["dark"]["small"].ml_per_barrel
-                barrel_catalog["blue"]["small"].quantity -= 1
-                if(barrel_catalog["dark"]["small"].quantity == 0):
-                    barrel_catalog["dark"]["small"] = None
+        elif(gold_quantity <= 350 or (barrel_catalog["green"]["medium"] in (None, "null") and barrel_catalog["green"]["large"] in (None, "null") and barrel_catalog["red"]["medium"] in (None, "null") and barrel_catalog["red"]["large"] in (None, "null") and barrel_catalog["blue"]["medium"] in (None, "null") and barrel_catalog["blue"]["large"] in (None, "null") and barrel_catalog["dark"]["medium"] in (None, "null") and barrel_catalog["dark"]["large"] in (None, "null"))):
+            if(mls[0] != tot_dark):
+                if(mls[0] == tot_green and barrel_catalog["green"]["small"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["small"].price):
+                    bar_list.append(
+                        {
+                    "sku": "SMALL_GREEN_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["green"]["small"].price
+                    tot_green += barrel_catalog["green"]["small"].ml_per_barrel
+                    barrel_catalog["green"]["small"].quantity -= 1
+                    if(barrel_catalog["green"]["small"].quantity == 0):
+                        barrel_catalog["green"]["small"] = None
+                elif(mls[0] == tot_red and barrel_catalog["red"]["small"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["small"].price):
+                    bar_list.append(
+                        {
+                    "sku": "SMALL_RED_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["red"]["small"].price
+                    tot_red += barrel_catalog["red"]["small"].ml_per_barrel
+                    barrel_catalog["red"]["small"].quantity -= 1
+                    if(barrel_catalog["red"]["small"].quantity == 0):
+                        barrel_catalog["red"]["small"] = None
+                elif(mls[0] == tot_blue and barrel_catalog["blue"]["small"] not in (None, "null") and gold_quantity >= barrel_catalog["blue"]["small"].price):
+                    bar_list.append(
+                        {
+                    "sku": "SMALL_BLUE_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["blue"]["small"].price
+                    tot_blue += barrel_catalog["blue"]["small"].ml_per_barrel
+                    barrel_catalog["blue"]["small"].quantity -= 1
+                    if(barrel_catalog["blue"]["small"].quantity == 0):
+                        barrel_catalog["blue"]["small"] = None
+            else:
+                if(mls[1] == tot_green and barrel_catalog["green"]["small"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["small"].price):
+                    bar_list.append(
+                        {
+                    "sku": "SMALL_GREEN_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["green"]["small"].price
+                    tot_green += barrel_catalog["green"]["small"].ml_per_barrel
+                    barrel_catalog["green"]["small"].quantity -= 1
+                    if(barrel_catalog["green"]["small"].quantity == 0):
+                        barrel_catalog["green"]["small"] = None
+                elif(mls[1] == tot_red and barrel_catalog["red"]["small"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["small"].price):
+                    bar_list.append(
+                        {
+                    "sku": "SMALL_RED_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["red"]["small"].price
+                    tot_red += barrel_catalog["red"]["small"].ml_per_barrel
+                    barrel_catalog["red"]["small"].quantity -= 1
+                    if(barrel_catalog["red"]["small"].quantity == 0):
+                        barrel_catalog["red"]["small"] = None
+                elif(mls[1] == tot_blue and barrel_catalog["blue"]["small"] not in (None, "null") and gold_quantity >= barrel_catalog["blue"]["small"].price):
+                    bar_list.append(
+                        {
+                    "sku": "SMALL_BLUE_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["blue"]["small"].price
+                    tot_blue += barrel_catalog["blue"]["small"].ml_per_barrel
+                    barrel_catalog["blue"]["small"].quantity -= 1
+                    if(barrel_catalog["blue"]["small"].quantity == 0):
+                        barrel_catalog["blue"]["small"] = None
 
-        elif(gold_quantity <= 550 or (barrel_catalog["green"]["large"] is None and barrel_catalog["red"]["large"] is None and barrel_catalog["blue"]["large"] is None and barrel_catalog["dark"]["large"] is None)):
-            if(mls[0] == tot_green and barrel_catalog["green"]["medium"] is not None and gold_quantity >= barrel_catalog["green"]["medium"].price):
-                bar_list.append(
-                    {
-                "sku": "MEDIUM_GREEN_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["green"]["medium"].price
-                tot_green += barrel_catalog["green"]["medium"].ml_per_barrel
-                barrel_catalog["green"]["medium"].quantity -= 1
-                if(barrel_catalog["green"]["medium"].quantity == 0):
-                    barrel_catalog["green"]["medium"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["medium"] is not None and gold_quantity >= barrel_catalog["red"]["medium"].price):
-                bar_list.append(
-                    {
-                "sku": "MEDIUM_RED_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["red"]["medium"].price
-                tot_red += barrel_catalog["red"]["medium"].ml_per_barrel
-                barrel_catalog["red"]["medium"].quantity -= 1
-                if(barrel_catalog["red"]["medium"].quantity == 0):
-                    barrel_catalog["red"]["medium"] = None
-            elif(mls[0] == tot_blue and barrel_catalog["blue"]["medium"] is not None and gold_quantity >= barrel_catalog["blue"]["medium"].price):
-                bar_list.append(
-                    {
-                "sku": "MEDIUM_BLUE_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["blue"]["medium"].price
-                tot_blue += barrel_catalog["blue"]["medium"].ml_per_barrel
-                barrel_catalog["blue"]["medium"].quantity -= 1
-                if(barrel_catalog["blue"]["medium"].quantity == 0):
-                    barrel_catalog["blue"]["medium"] = None
-            elif(mls[0] == tot_dark and barrel_catalog["dark"]["medium"] is not None and gold_quantity >= barrel_catalog["dark"]["medium"].price):
-                bar_list.append(
-                    {
-                "sku": "MEDIUM_DARK_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["dark"]["medium"].price
-                tot_dark += barrel_catalog["dark"]["medium"].ml_per_barrel
-                barrel_catalog["dark"]["medium"].quantity -= 1
-                if(barrel_catalog["dark"]["medium"].quantity == 0):
-                    barrel_catalog["dark"]["medium"] = None
+        elif(gold_quantity <= 550 or (barrel_catalog["green"]["large"] in (None, "null") and barrel_catalog["red"]["large"] in (None, "null") and barrel_catalog["blue"]["large"] in (None, "null") and barrel_catalog["dark"]["large"] in (None, "null"))):
+            if(mls[0] != tot_dark):
+                if(mls[0] == tot_green and barrel_catalog["green"]["medium"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["medium"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MEDIUM_GREEN_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["green"]["medium"].price
+                    tot_green += barrel_catalog["green"]["medium"].ml_per_barrel
+                    barrel_catalog["green"]["medium"].quantity -= 1
+                    if(barrel_catalog["green"]["medium"].quantity == 0):
+                        barrel_catalog["green"]["medium"] = None
+                elif(mls[0] == tot_red and barrel_catalog["red"]["medium"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["medium"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MEDIUM_RED_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["red"]["medium"].price
+                    tot_red += barrel_catalog["red"]["medium"].ml_per_barrel
+                    barrel_catalog["red"]["medium"].quantity -= 1
+                    if(barrel_catalog["red"]["medium"].quantity == 0):
+                        barrel_catalog["red"]["medium"] = None
+                elif(mls[0] == tot_blue and barrel_catalog["blue"]["medium"] not in (None, "null") and gold_quantity >= barrel_catalog["blue"]["medium"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MEDIUM_BLUE_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["blue"]["medium"].price
+                    tot_blue += barrel_catalog["blue"]["medium"].ml_per_barrel
+                    barrel_catalog["blue"]["medium"].quantity -= 1
+                    if(barrel_catalog["blue"]["medium"].quantity == 0):
+                        barrel_catalog["blue"]["medium"] = None
+            else:
+                if(mls[1] == tot_green and barrel_catalog["green"]["medium"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["medium"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MEDIUM_GREEN_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["green"]["medium"].price
+                    tot_green += barrel_catalog["green"]["medium"].ml_per_barrel
+                    barrel_catalog["green"]["medium"].quantity -= 1
+                    if(barrel_catalog["green"]["medium"].quantity == 0):
+                        barrel_catalog["green"]["medium"] = None
+                elif(mls[1] == tot_red and barrel_catalog["red"]["medium"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["medium"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MEDIUM_RED_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["red"]["medium"].price
+                    tot_red += barrel_catalog["red"]["medium"].ml_per_barrel
+                    barrel_catalog["red"]["medium"].quantity -= 1
+                    if(barrel_catalog["red"]["medium"].quantity == 0):
+                        barrel_catalog["red"]["medium"] = None
+                elif(mls[1] == tot_blue and barrel_catalog["blue"]["medium"] not in (None, "null") and gold_quantity >= barrel_catalog["blue"]["medium"].price):
+                    bar_list.append(
+                        {
+                    "sku": "MEDIUM_BLUE_BARREL",
+                    "quantity": 1,
+                    }
+                    )
+                    gold_quantity -= barrel_catalog["blue"]["medium"].price
+                    tot_blue += barrel_catalog["blue"]["medium"].ml_per_barrel
+                    barrel_catalog["blue"]["medium"].quantity -= 1
+                    if(barrel_catalog["blue"]["medium"].quantity == 0):
+                        barrel_catalog["blue"]["medium"] = None
 
         else:
-            if(mls[0] == tot_green and barrel_catalog["green"]["large"] is not None and gold_quantity >= barrel_catalog["green"]["large"].price):
+            if(mls[0] == tot_green and barrel_catalog["green"]["large"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["large"].price):
                 bar_list.append(
                     {
                 "sku": "LARGE_GREEN_BARREL",
@@ -305,7 +383,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["green"]["large"].quantity -= 1
                 if(barrel_catalog["green"]["large"].quantity == 0):
                     barrel_catalog["green"]["large"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["large"] is not None and gold_quantity >= barrel_catalog["red"]["large"].price):
+            elif(mls[0] == tot_red and barrel_catalog["red"]["large"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["large"].price):
                 bar_list.append(
                     {
                 "sku": "LARGE_RED_BARREL",
@@ -317,7 +395,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["red"]["large"].quantity -= 1
                 if(barrel_catalog["red"]["large"].quantity == 0):
                     barrel_catalog["red"]["large"] = None
-            elif(mls[0] == tot_blue and barrel_catalog["blue"]["large"] is not None and gold_quantity >= barrel_catalog["blue"]["large"].price):
+            elif(mls[0] == tot_blue and barrel_catalog["blue"]["large"] not in (None, "null") and gold_quantity >= barrel_catalog["blue"]["large"].price):
                 bar_list.append(
                     {
                 "sku": "LARGE_BLUE_BARREL",
@@ -329,7 +407,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["blue"]["large"].quantity -= 1
                 if(barrel_catalog["blue"]["large"].quantity == 0):
                     barrel_catalog["blue"]["large"] = None
-            elif(mls[0] == tot_dark and barrel_catalog["dark"]["large"] is not None and gold_quantity >= barrel_catalog["dark"]["large"].price):
+            elif(mls[0] == tot_dark and barrel_catalog["dark"]["large"] not in (None, "null") and gold_quantity >= barrel_catalog["dark"]["large"].price):
                 bar_list.append(
                     {
                 "sku": "LARGE_DARK_BARREL",
