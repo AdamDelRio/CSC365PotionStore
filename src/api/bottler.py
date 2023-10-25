@@ -135,6 +135,7 @@ def get_bottle_plan():
                 ml_dict["green"] -= potion.green_ml
                 ml_dict["blue"] -= potion.blue_ml
                 ml_dict["dark"] -= potion.dark_ml
+                potion_quantity += 1
 
         if not bottle_possible:
             break

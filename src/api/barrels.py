@@ -69,6 +69,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         blue_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(blue_ml) FROM potion_types")).scalar()
         dark_ml_takes = connection.execute(sqlalchemy.text("SELECT SUM(dark_ml) FROM potion_types")).scalar()
         gold_quantity = connection.execute(sqlalchemy.text("SELECT SUM(change) FROM gold_ledger")).scalar()
+        potion_quantity = connection.execute(sqlalchemy.text("SELECT SUM(change) FROM potion_ledger")).scalar()
 
     tot_red = red_ml // (red_ml_takes / 100)
     tot_blue = blue_ml // (blue_ml_takes / 100)
@@ -140,7 +141,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     prev_gold_quantity = gold_quantity
 
-    while(gold_quantity >= 0):
+    while(gold_quantity >= 0 and potion_quantity <= 150):
         mls = sorted([tot_dark, tot_blue, tot_red, tot_green])
         if(gold_quantity <= 220 or (barrel_catalog["red"]["small"] in (None, "null") and barrel_catalog["red"]["medium"] in (None, "null") and barrel_catalog["red"]["large"] in (None, "null") and barrel_catalog["green"]["small"] in (None, "null") and barrel_catalog["green"]["medium"] in (None, "null") and barrel_catalog["green"]["large"] in (None, "null") and barrel_catalog["blue"]["small"] in (None, "null") and barrel_catalog["blue"]["medium"] in (None, "null") and barrel_catalog["blue"]["large"] in (None, "null") and barrel_catalog["dark"]["small"] in (None, "null") and barrel_catalog["dark"]["medium"] in (None, "null") and barrel_catalog["dark"]["large"] in (None, "null"))):
             if(mls[0] != tot_dark):
