@@ -29,8 +29,11 @@ def reset():
         potion_types = connection.execute(sqlalchemy.text("SELECT potion_id FROM potion_types"))
         for potion_id in potion_types:
             potion_id = potion_id[0]
-            connection.execute(sqlalchemy.text(f"INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES ('reset', 0, {potion_id}, 'Removing all potions from inventory')"))
-        
+            connection.execute(
+                sqlalchemy.text("INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES (:entry, :change, :potion_id, :description)"),
+                {'entry': 'reset', 'change': 0, 'potion_id': potion_id, 'description': 'Removing all potions from inventory'}
+            )
+
     return "OK"
 
 

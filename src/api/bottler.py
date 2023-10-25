@@ -40,9 +40,16 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
         with db.engine.begin() as connection:
             potion_id = connection.execute(
                 sqlalchemy.text(
-                    f"SELECT potion_id FROM potion_types WHERE red_ml = {potion.potion_type[0]} AND green_ml = {potion.potion_type[1]} AND blue_ml = {potion.potion_type[2]} AND dark_ml = {potion.potion_type[3]}"
-                )
+                    "SELECT potion_id FROM potion_types WHERE red_ml = :red_ml AND green_ml = :green_ml AND blue_ml = :blue_ml AND dark_ml = :dark_ml"
+                ),
+                {
+                    'red_ml': potion.potion_type[0],
+                    'green_ml': potion.potion_type[1],
+                    'blue_ml': potion.potion_type[2],
+                    'dark_ml': potion.potion_type[3]
+                }
             ).first().potion_id
+
             connection.execute(sqlalchemy.text(
                 "INSERT INTO potion_ledger (potion_id, entry, change, description) VALUES (:potion_id, 'bottling', :potion_quantity, 'Bottling operation')"
             ), {"potion_id": potion_id, "potion_quantity": potion.quantity})

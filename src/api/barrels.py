@@ -29,7 +29,11 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         total_price += item.price
         
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(f"INSERT INTO gold_ledger (entry, change, description) VALUES ('deliver', -{total_price}, 'Delivering barrels')"))
+        connection.execute(
+            sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES (:entry, :change, :description)"),
+            {'entry': 'deliver', 'change': -total_price, 'description': 'Delivering barrels'}
+        )
+
 
     total_red_ml = 0
     total_blue_ml = 0
@@ -46,10 +50,22 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
             total_dark_ml += item.ml_per_barrel * item.quantity
 
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('red', 'deliver', {total_red_ml}, 'Delivering red barrels')"))
-        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('green', 'deliver', {total_green_ml}, 'Delivering green barrels')"))
-        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('blue', 'deliver', {total_blue_ml}, 'Delivering blue barrels')"))
-        connection.execute(sqlalchemy.text(f"INSERT INTO ml_ledger (color, entry, change, description) VALUES ('dark', 'deliver', {total_dark_ml}, 'Delivering dark barrels')"))
+        connection.execute(
+            sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES (:color, :entry, :change, :description)"),
+            {'color': 'red', 'entry': 'deliver', 'change': total_red_ml, 'description': 'Delivering red barrels'}
+        )
+        connection.execute(
+            sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES (:color, :entry, :change, :description)"),
+            {'color': 'green', 'entry': 'deliver', 'change': total_green_ml, 'description': 'Delivering green barrels'}
+        )
+        connection.execute(
+            sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES (:color, :entry, :change, :description)"),
+            {'color': 'blue', 'entry': 'deliver', 'change': total_blue_ml, 'description': 'Delivering blue barrels'}
+        )
+        connection.execute(
+            sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES (:color, :entry, :change, :description)"),
+            {'color': 'dark', 'entry': 'deliver', 'change': total_dark_ml, 'description': 'Delivering dark barrels'}
+        )
 
     return "OK"
 
@@ -139,9 +155,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         elif(item.sku == "LARGE_DARK_BARREL"):
             barrel_catalog["dark"]["large"] = item
 
-    prev_gold_quantity = gold_quantity
+    prev_gold_quantity = gold_quantity 
 
-    while(gold_quantity >= 0 and potion_quantity <= 150):
+    while(gold_quantity >= 0 and potion_quantity <= 100):
         mls = sorted([tot_dark, tot_blue, tot_red, tot_green])
         if(gold_quantity <= 220 or (barrel_catalog["red"]["small"] in (None, "null") and barrel_catalog["red"]["medium"] in (None, "null") and barrel_catalog["red"]["large"] in (None, "null") and barrel_catalog["green"]["small"] in (None, "null") and barrel_catalog["green"]["medium"] in (None, "null") and barrel_catalog["green"]["large"] in (None, "null") and barrel_catalog["blue"]["small"] in (None, "null") and barrel_catalog["blue"]["medium"] in (None, "null") and barrel_catalog["blue"]["large"] in (None, "null") and barrel_catalog["dark"]["small"] in (None, "null") and barrel_catalog["dark"]["medium"] in (None, "null") and barrel_catalog["dark"]["large"] in (None, "null"))):
             if(mls[0] != tot_dark):
