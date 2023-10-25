@@ -94,7 +94,7 @@ def get_bottle_plan():
     bot_list = []
     count_dict = {potion.potion_id: 0 for potion in potion_info}
 
-    while any(ml >= max(potion.red_ml, potion.green_ml, potion.blue_ml, potion.dark_ml) for ml in ml_dict.values() for potion in potion_info) and potion_quantity <= 300:
+    while any(ml >= max(potion.red_ml, potion.green_ml, potion.blue_ml, potion.dark_ml) for ml in ml_dict.values() for potion in potion_info) and potion_quantity <= 294:
         bottle_possible = False
 
         for potion in sorted(potion_info, key=lambda p: potion_dict.get(p.potion_id, 0)):
