@@ -30,6 +30,7 @@ def get_inventory():
                 "SELECT SUM(change) FROM gold_ledger"
             )
         ).first()[0]
+        #connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('audit fix', -225, 'Fixing audit error')"))
 
     return {
         "number_of_potions": result_potions,

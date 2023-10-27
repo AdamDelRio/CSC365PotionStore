@@ -26,57 +26,70 @@ def search_orders(
     customer_name: str = "",
     potion_sku: str = "",
     search_page: str = "",
-    sort_col: search_sort_options = search_sort_options.timestamp,
-    sort_order: search_sort_order = search_sort_order.desc,
+    sort_col: str = 'timestamp',
+    sort_order: str = 'desc',
 ):
-    """
-    Search for cart line items by customer name and/or potion sku.
+    with db.engine.begin() as connection:
+        query = """
+                SELECT
+                    cart_ids.customer,
+                    potion_types.sku as potion_sku,
+                    potion_types.cost,
+                    customer_orders_ledger.timestamp,
+                    customer_orders_ledger.quantity
+                FROM
+                    customer_orders_ledger
+                INNER JOIN cart_ids ON customer_orders_ledger.cart_id = cart_ids.cart_id
+                INNER JOIN potion_types ON customer_orders_ledger.potion_id = potion_types.potion_id
+                """
 
-    Customer name and potion sku filter to orders that contain the 
-    string (case insensitive). If the filters aren't provided, no
-    filtering occurs on the respective search term.
+        if customer_name and potion_sku:
+            query += """
+                     WHERE
+                     (cart_ids.customer LIKE :customer_name) 
+                     AND (potion_types.sku LIKE :potion_sku)
+                     """
+        elif customer_name:
+            query += """
+                     WHERE
+                     (cart_ids.customer LIKE :customer_name)
+                     """
+        elif potion_sku:
+            query += """
+                     WHERE
+                     (potion_types.sku LIKE :potion_sku)
+                     """
+        
+        query += f" ORDER BY {sort_col} {sort_order.upper()} LIMIT 5"
 
-    Search page is a cursor for pagination. The response to this
-    search endpoint will return previous or next if there is a
-    previous or next page of results available. The token passed
-    in that search response can be passed in the next search request
-    as search page to get that page of results.
+        result = connection.execute(
+            sqlalchemy.text(query),
+            {
+                'customer_name': f"%{customer_name}%" if customer_name else None,
+                'potion_sku': f"%{potion_sku}%" if potion_sku else None
+            }
+        )
+        rows = result.fetchall()
 
-    Sort col is which column to sort by and sort order is the direction
-    of the search. They default to searching by timestamp of the order
-    in descending order.
-
-    The response itself contains a previous and next page token (if
-    such pages exist) and the results as an array of line items. Each
-    line item contains the line item id (must be unique), item sku, 
-    customer name, line item total (in gold), and timestamp of the order.
-    Your results must be paginated, the max results you can return at any
-    time is 5 total line items.
-    """
-
-    if sort_col is search_sort_options.customer_name:
-        order_by = db.movies.c.title
-    elif sort is movie_sort_options.year:
-        order_by = db.movies.c.year
-    elif sort is movie_sort_options.rating:
-        order_by = sqlalchemy.desc(db.movies.c.imdb_rating)
-    else:
-        assert False
-
-    return {
+    json = {
         "previous": "",
         "next": "",
-        "results": [
-            {
-                "line_item_id": 1,
-                "item_sku": potion_sku,
-                "customer_name": customer_name,
-                "line_item_total": 5,
-                "timestamp": sort_col,
-            }
-        ],
+        "results": [],
     }
+    line_item_id = 1
+    for row in rows:
+        json["results"].append(
+            {
+                "line_item_id": line_item_id,  # Add a unique line item ID here,
+                "item_sku": row.potion_sku,
+                "customer_name": row.customer,
+                "line_item_total": row.quantity * row.cost,
+                "timestamp": row.timestamp,
+            }
+        )
+        line_item_id += 1
 
+    return json
 
 class NewCart(BaseModel):
     customer: str
