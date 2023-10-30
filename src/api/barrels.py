@@ -173,19 +173,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         prev_gold_quantity = gold_quantity
         mls = sorted([tot_red, tot_green])
         if(gold_quantity < 120):
-            if(mls[0] == tot_green and barrel_catalog["green"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["mini"].price):
-                bar_list.append(
-                    {
-                "sku": "MINI_GREEN_BARREL",
-                "quantity": 1,
-                }
-                )
-                gold_quantity -= barrel_catalog["green"]["mini"].price
-                tot_green += barrel_catalog["green"]["mini"].ml_per_barrel
-                barrel_catalog["green"]["mini"].quantity -= 1
-                if(barrel_catalog["green"]["mini"].quantity == 0):
-                    barrel_catalog["green"]["mini"] = None
-            elif(mls[0] == tot_red and barrel_catalog["red"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["mini"].price):
+            if(mls[0] == tot_red and barrel_catalog["red"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["red"]["mini"].price):
                 bar_list.append(
                     {
                 "sku": "MINI_RED_BARREL",
@@ -197,6 +185,18 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["red"]["mini"].quantity -= 1
                 if(barrel_catalog["red"]["mini"].quantity == 0):
                     barrel_catalog["red"]["mini"] = None
+            elif(mls[0] == tot_green and barrel_catalog["green"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["mini"].price):
+                bar_list.append(
+                    {
+                "sku": "MINI_GREEN_BARREL",
+                "quantity": 1,
+                }
+                )
+                gold_quantity -= barrel_catalog["green"]["mini"].price
+                tot_green += barrel_catalog["green"]["mini"].ml_per_barrel
+                barrel_catalog["green"]["mini"].quantity -= 1
+                if(barrel_catalog["green"]["mini"].quantity == 0):
+                    barrel_catalog["green"]["mini"] = None
 
         elif(gold_quantity < 250 or (barrel_catalog["green"]["medium"] in (None, "null") and barrel_catalog["green"]["large"] in (None, "null") and barrel_catalog["red"]["medium"] in (None, "null") and barrel_catalog["red"]["large"] in (None, "null") and barrel_catalog["dark"]["large"] in (None, "null"))):
             if(mls[0] == tot_green and barrel_catalog["green"]["small"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["small"].price):
