@@ -30,7 +30,7 @@ def reset():
             potion_id = potion_id[0]
             connection.execute(
                 sqlalchemy.text("INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES (:entry, :change, :potion_id, :description)"),
-                {'entry': 'reset', 'change': 10, 'potion_id': potion_id, 'description': 'Removing all potions from inventory'}
+                {'entry': 'reset', 'change': 0, 'potion_id': potion_id, 'description': 'Removing all potions from inventory'}
             )
 
     return "OK"
