@@ -64,25 +64,47 @@ def search_orders(
         result = connection.execute(sqlalchemy.text(query), {**parameters, 'page_size': page_size, 'offset': offset})
         rows = result.fetchall()
 
-    json = {"results": []}
+        json = {"results": []}
 
-    line_item_id = (search_page - 1) * page_size + 1
-    for row in rows:
-        json["results"].append(
-            {
-                "line_item_id": line_item_id,
-                "item_sku": row.potion_sku,
-                "customer_name": row.customer,
-                "line_item_total": row.quantity * row.cost,
-                "timestamp": row.timestamp,
-            }
-        )
-        line_item_id += 1
+        line_item_id = (search_page - 1) * page_size + 1
+        for row in rows:
+            json["results"].append(
+                {
+                    "line_item_id": line_item_id,
+                    "item_sku": row.potion_sku,
+                    "customer_name": row.customer,
+                    "line_item_total": row.quantity * row.cost,
+                    "timestamp": row.timestamp,
+                }
+            )
+            line_item_id += 1
 
-    if search_page > 1:
-        json["previous"] = search_page - 1
-    if len(rows) == page_size:
-        json["next"] = search_page + 1
+            if search_page > 1:
+                json["previous"] = search_page - 1
+
+            if len(rows) == page_size:
+                next_offset = offset + page_size
+                next_query = f"""
+                    SELECT
+                        cart_ids.customer,
+                        potion_types.sku as potion_sku,
+                        potion_types.cost,
+                        purchase_history.timestamp,
+                        purchase_history.quantity
+                    FROM
+                        purchase_history
+                    INNER JOIN cart_ids ON purchase_history.cart_id = cart_ids.cart_id
+                    INNER JOIN potion_types ON purchase_history.potion_id = potion_types.potion_id
+                    {where_clause}
+                    ORDER BY {sort_col} {sort_order.upper()} 
+                    LIMIT :page_size OFFSET :offset
+                    """
+
+                next_result = connection.execute(sqlalchemy.text(next_query), {**parameters, 'page_size': page_size, 'offset': next_offset})
+                next_rows = next_result.fetchone()
+
+                if next_rows not in (None, "null"):
+                    json["next"] = search_page + 1
 
     return json
 
@@ -144,18 +166,6 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
             ),
             {'item_sku': item_sku, 'cart_id': cart_id, 'cart_item_quantity': cart_item.quantity}
         )
-        connection.execute(
-            sqlalchemy.text(
-                """
-                WITH potion_id_query AS (
-                    SELECT potion_id FROM potion_types WHERE sku = :item_sku
-                )
-                INSERT INTO purchase_history (cart_id, potion_id, quantity)
-                SELECT :cart_id, potion_id, :cart_item_quantity FROM potion_id_query
-                """
-            ),
-            {'item_sku': item_sku, 'cart_id': cart_id, 'cart_item_quantity': cart_item.quantity}
-        )
 
     return "OK"
 
@@ -198,5 +208,14 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                     "INSERT INTO potion_ledger (potion_id, entry, change, description) VALUES (:potion_id, 'checkout', -:quantity, 'Checkout operation')"),
                 {'potion_id': potion_id, 'quantity': quantity}
             )
+            connection.execute(
+            sqlalchemy.text(
+                """
+                INSERT INTO purchase_history (potion_id, cart_id, quantity)
+                VALUES (:potion_id, :cart_id, :cart_item_quantity)
+                """
+            ),
+            {'potion_id': potion_id, 'cart_id': cart_id, 'cart_item_quantity': quantity}
+        )
 
         return {"total_potions_bought": total_bought, "total_gold_paid": total_cost}
