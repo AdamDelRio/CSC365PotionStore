@@ -141,10 +141,10 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["dark"]["large"] = None
             purchase_counts["dark"] += 1
 
-    while any(purchase_counts[color] < 6 for color in potion_color):
+    while any(purchase_counts[color] < 6 and ((color == "green" and green_ml <= 50000 and gold_quantity >= barrel_catalog[color]["large"].price) or (color == "red" and red_ml <= 50000 and gold_quantity >= barrel_catalog[color]["large"].price)) for color in potion_color):
         for color in potion_color:
             while purchase_counts[color] < num_bought + 1 and barrel_catalog[color]["large"] is not None and gold_quantity >= barrel_catalog[color]["large"].price:
-                if color == "green" and green_ml <= 50000:
+                if color == "green":
                     bar_list.append({
                         "sku": "LARGE_GREEN_BARREL",
                         "quantity": 1
@@ -155,7 +155,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     if barrel_catalog[color]["large"].quantity == 0:
                         barrel_catalog[color]["large"] = None
                     purchase_counts[color] += 1
-                elif color == "red" and red_ml <= 50000:
+                elif color == "red":
                     bar_list.append({
                         "sku": "LARGE_RED_BARREL",
                         "quantity": 1
@@ -166,9 +166,11 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     if barrel_catalog[color]["large"].quantity == 0:
                         barrel_catalog[color]["large"] = None
                     purchase_counts[color] += 1
-        num_bought += 1
+            num_bought += 1
 
-    while(gold_quantity >= 0 and (potion_quantity <= 100 or red_ml < 5000 or green_ml < 5000)):
+
+    while gold_quantity >= 0 and (potion_quantity <= 100 or red_ml < 5000 or green_ml < 5000):
+        prev_gold_quantity = gold_quantity
         mls = sorted([tot_red, tot_green])
         if(gold_quantity < 120):
             if(mls[0] == tot_green and barrel_catalog["green"]["mini"] not in (None, "null") and gold_quantity >= barrel_catalog["green"]["mini"].price):
@@ -250,6 +252,5 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
         if gold_quantity == prev_gold_quantity:
             break
-        prev_gold_quantity = gold_quantity
     
     return bar_list
