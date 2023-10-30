@@ -128,7 +128,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     potion_color = ["red", "green"]
 
     num_bought = 0
-    if purchase_counts["dark"] < 6:
+    if purchase_counts["dark"] < 6 and dark_ml <= 50000:
         while purchase_counts["dark"] < 6 and barrel_catalog["dark"]["large"] is not None and gold_quantity >= barrel_catalog["dark"]["large"].price:
             bar_list.append({
                 "sku": "LARGE_DARK_BARREL",
@@ -144,7 +144,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     while any(purchase_counts[color] < 6 for color in potion_color):
         for color in potion_color:
             while purchase_counts[color] < num_bought + 1 and barrel_catalog[color]["large"] is not None and gold_quantity >= barrel_catalog[color]["large"].price:
-                if color == "green":
+                if color == "green" and green_ml <= 50000:
                     bar_list.append({
                         "sku": "LARGE_GREEN_BARREL",
                         "quantity": 1
@@ -155,7 +155,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     if barrel_catalog[color]["large"].quantity == 0:
                         barrel_catalog[color]["large"] = None
                     purchase_counts[color] += 1
-                elif color == "red":
+                elif color == "red" and red_ml <= 50000:
                     bar_list.append({
                         "sku": "LARGE_RED_BARREL",
                         "quantity": 1
