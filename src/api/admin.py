@@ -20,6 +20,7 @@ def reset():
         connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('reset', 100, 'Resetting gold balance to 100')"))
         connection.execute(sqlalchemy.text("DELETE FROM potion_ledger"))
         connection.execute(sqlalchemy.text("DELETE FROM customer_orders_ledger"))
+        connection.execute(sqlalchemy.text("DELETE FROM purchase_history"))
         connection.execute(sqlalchemy.text("DELETE FROM cart_ids"))
         connection.execute(sqlalchemy.text("DELETE FROM ml_ledger"))
         connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('red', 'reset', 0, 'Removing all red barrels from inventory')"))
