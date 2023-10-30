@@ -25,62 +25,52 @@ class search_sort_order(str, Enum):
 def search_orders(
     customer_name: str = "",
     potion_sku: str = "",
-    search_page: str = "",
+    search_page: int = 1,
     sort_col: str = 'timestamp',
     sort_order: str = 'desc',
 ):
     with db.engine.begin() as connection:
-        query = """
+        page_size = 5
+        offset = (search_page - 1) * page_size
+
+        conditions = []
+        parameters = {}
+
+        if customer_name:
+            conditions.append("cart_ids.customer LIKE :customer_name")
+            parameters['customer_name'] = f"%{customer_name}%"
+        if potion_sku:
+            conditions.append("potion_types.sku LIKE :potion_sku")
+            parameters['potion_sku'] = f"%{potion_sku}%"
+
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+        query = f"""
                 SELECT
                     cart_ids.customer,
                     potion_types.sku as potion_sku,
                     potion_types.cost,
-                    customer_orders_ledger.timestamp,
-                    customer_orders_ledger.quantity
+                    purchase_history.timestamp,
+                    purchase_history.quantity
                 FROM
-                    customer_orders_ledger
-                INNER JOIN cart_ids ON customer_orders_ledger.cart_id = cart_ids.cart_id
-                INNER JOIN potion_types ON customer_orders_ledger.potion_id = potion_types.potion_id
+                    purchase_history
+                INNER JOIN cart_ids ON purchase_history.cart_id = cart_ids.cart_id
+                INNER JOIN potion_types ON purchase_history.potion_id = potion_types.potion_id
+                {where_clause}
+                ORDER BY {sort_col} {sort_order.upper()} 
+                LIMIT :page_size OFFSET :offset
                 """
 
-        if customer_name and potion_sku:
-            query += """
-                     WHERE
-                     (cart_ids.customer LIKE :customer_name) 
-                     AND (potion_types.sku LIKE :potion_sku)
-                     """
-        elif customer_name:
-            query += """
-                     WHERE
-                     (cart_ids.customer LIKE :customer_name)
-                     """
-        elif potion_sku:
-            query += """
-                     WHERE
-                     (potion_types.sku LIKE :potion_sku)
-                     """
-        
-        query += f" ORDER BY {sort_col} {sort_order.upper()} LIMIT 5"
-
-        result = connection.execute(
-            sqlalchemy.text(query),
-            {
-                'customer_name': f"%{customer_name}%" if customer_name else None,
-                'potion_sku': f"%{potion_sku}%" if potion_sku else None
-            }
-        )
+        result = connection.execute(sqlalchemy.text(query), {**parameters, 'page_size': page_size, 'offset': offset})
         rows = result.fetchall()
 
-    json = {
-        "previous": "",
-        "next": "",
-        "results": [],
-    }
-    line_item_id = 1
+    json = {"results": []}
+
+    line_item_id = (search_page - 1) * page_size + 1
     for row in rows:
         json["results"].append(
             {
-                "line_item_id": line_item_id,  # Add a unique line item ID here,
+                "line_item_id": line_item_id,
                 "item_sku": row.potion_sku,
                 "customer_name": row.customer,
                 "line_item_total": row.quantity * row.cost,
@@ -88,6 +78,11 @@ def search_orders(
             }
         )
         line_item_id += 1
+
+    if search_page > 1:
+        json["previous"] = search_page - 1
+    if len(rows) == page_size:
+        json["next"] = search_page + 1
 
     return json
 
@@ -100,24 +95,22 @@ def create_cart(new_cart: NewCart):
     with db.engine.begin() as connection:
         customer_names_col = connection.execute(sqlalchemy.text("SELECT customer FROM cart_ids")).fetchall()
 
-    customer_names = [row[0] for row in customer_names_col]
-    if new_cart.customer not in customer_names:
-        with db.engine.begin() as connection:
+        customer_names = [row[0] for row in customer_names_col]
+        if new_cart.customer not in customer_names:
             cart = connection.execute(
                 sqlalchemy.text("INSERT INTO cart_ids (customer) VALUES (:customer) RETURNING cart_id"),
                 {'customer': new_cart.customer}
             )
 
-        cart_id = cart.fetchone()[0]
-        return {"cart_id": cart_id}
-    else:
-        with db.engine.begin() as connection:
+            cart_id = cart.fetchone()[0]
+            return {"cart_id": cart_id}
+        else:
             cart_id = connection.execute(
                 sqlalchemy.text("SELECT cart_id FROM cart_ids WHERE customer = :customer"),
                 {'customer': new_cart.customer}
             ).first().cart_id
 
-        return {"cart_id": cart_id}
+            return {"cart_id": cart_id}
 
 
 
@@ -151,6 +144,18 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
             ),
             {'item_sku': item_sku, 'cart_id': cart_id, 'cart_item_quantity': cart_item.quantity}
         )
+        connection.execute(
+            sqlalchemy.text(
+                """
+                WITH potion_id_query AS (
+                    SELECT potion_id FROM potion_types WHERE sku = :item_sku
+                )
+                INSERT INTO purchase_history (cart_id, potion_id, quantity)
+                SELECT :cart_id, potion_id, :cart_item_quantity FROM potion_id_query
+                """
+            ),
+            {'item_sku': item_sku, 'cart_id': cart_id, 'cart_item_quantity': cart_item.quantity}
+        )
 
     return "OK"
 
@@ -169,22 +174,24 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             {'cart_id': cart_id}
         ).fetchall()
 
-    for row in num_potions_bought:
-        potion_id, quantity = row
-        with db.engine.begin() as connection:
+        for row in num_potions_bought:
+            potion_id, quantity = row
             potions = connection.execute(
                 sqlalchemy.text("SELECT cost, red_ml, green_ml, blue_ml, dark_ml FROM potion_types WHERE potion_id = :potion_id"),
                 {'potion_id': potion_id}
             ).first()
 
-        cost_potions = potions.cost
-        total_cost += cost_potions * quantity
-        total_bought += quantity
+            cost_potions = potions.cost
+            total_cost += cost_potions * quantity
+            total_bought += quantity
 
-        with db.engine.begin() as connection:
             connection.execute(
                 sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('checkout', :total_cost, 'Checkout operation')"),
                 {'total_cost': total_cost}
+            )
+            connection.execute(
+                sqlalchemy.text("DELETE FROM customer_orders_ledger WHERE potion_id = :potion_id AND cart_id = :cart_id"),
+                {'potion_id': potion_id, 'cart_id': cart_id}
             )
             connection.execute(
                 sqlalchemy.text(
@@ -192,4 +199,4 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                 {'potion_id': potion_id, 'quantity': quantity}
             )
 
-    return {"total_potions_bought": total_bought, "total_gold_paid": total_cost}
+        return {"total_potions_bought": total_bought, "total_gold_paid": total_cost}

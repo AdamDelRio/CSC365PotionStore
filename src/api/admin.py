@@ -24,14 +24,13 @@ def reset():
         connection.execute(sqlalchemy.text("DELETE FROM ml_ledger"))
         connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('red', 'reset', 0, 'Removing all red barrels from inventory')"))
         connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('green', 'reset', 0, 'Removing all green barrels from inventory')"))
-        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('blue', 'reset', 0, 'Removing all blue barrels from inventory')"))
         connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('dark', 'reset', 0, 'Removing all dark barrels from inventory')"))
         potion_types = connection.execute(sqlalchemy.text("SELECT potion_id FROM potion_types"))
         for potion_id in potion_types:
             potion_id = potion_id[0]
             connection.execute(
                 sqlalchemy.text("INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES (:entry, :change, :potion_id, :description)"),
-                {'entry': 'reset', 'change': 0, 'potion_id': potion_id, 'description': 'Removing all potions from inventory'}
+                {'entry': 'reset', 'change': 10, 'potion_id': potion_id, 'description': 'Removing all potions from inventory'}
             )
 
     return "OK"
