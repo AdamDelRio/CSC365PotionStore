@@ -95,7 +95,8 @@ def get_bottle_plan():
 
         for potion in sorted(potion_info, key=lambda p: potion_dict.get(p.potion_id, 0)):
             available_red = available_green = available_dark = float("inf")
-            
+            print(f"Current potion: {potion}")
+
             if potion.red_ml != 0:
                 available_red = ml_dict["red"] // potion.red_ml
 
@@ -106,9 +107,12 @@ def get_bottle_plan():
                 available_dark = ml_dict["dark"] // potion.dark_ml
 
             max_available = min(available_red, available_green, available_dark)
+            print(f"Max available: {max_available}")
+            print(f"Count dict for current potion: {count_dict[potion.potion_id]}")
 
-            if max_available > count_dict[potion.potion_id] and count_dict[potion.potion_id] <= 49:
+            if max_available >= count_dict[potion.potion_id] and count_dict[potion.potion_id] <= 49 and max_available != 0:
                 current_potion_type = [potion.red_ml, potion.green_ml, potion.dark_ml]
+                print(f"Current potion type: {current_potion_type}")
                 if any(x["potion_type"] == current_potion_type for x in bot_list):
                     for x in bot_list:
                         if x["potion_type"] == current_potion_type:
