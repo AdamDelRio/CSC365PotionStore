@@ -205,6 +205,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 }
                 )
                 gold_quantity -= barrel_catalog["red"]["mini"].price
+                red_ml += barrel_catalog["red"]["mini"].ml_per_barrel
                 tot_red += barrel_catalog["red"]["mini"].ml_per_barrel
                 barrel_catalog["red"]["mini"].quantity -= 1
                 if(barrel_catalog["red"]["mini"].quantity == 0):
@@ -218,6 +219,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= barrel_catalog["green"]["mini"].price
                 tot_green += barrel_catalog["green"]["mini"].ml_per_barrel
+                green_ml += barrel_catalog["green"]["mini"].ml_per_barrel
                 barrel_catalog["green"]["mini"].quantity -= 1
                 if(barrel_catalog["green"]["mini"].quantity == 0):
                     barrel_catalog["green"]["mini"] = None
@@ -232,6 +234,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= barrel_catalog["green"]["small"].price
                 tot_green += barrel_catalog["green"]["small"].ml_per_barrel
+                green_ml += barrel_catalog["green"]["small"].ml_per_barrel
                 barrel_catalog["green"]["small"].quantity -= 1
                 if(barrel_catalog["green"]["small"].quantity == 0):
                     barrel_catalog["green"]["small"] = None
@@ -244,6 +247,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= barrel_catalog["red"]["small"].price
                 tot_red += barrel_catalog["red"]["small"].ml_per_barrel
+                red_ml += barrel_catalog["red"]["small"].ml_per_barrel
                 barrel_catalog["red"]["small"].quantity -= 1
                 if(barrel_catalog["red"]["small"].quantity == 0):
                     barrel_catalog["red"]["small"] = None
@@ -258,6 +262,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= barrel_catalog["green"]["medium"].price
                 tot_green += barrel_catalog["green"]["medium"].ml_per_barrel
+                green_ml += barrel_catalog["green"]["medium"].ml_per_barrel
                 barrel_catalog["green"]["medium"].quantity -= 1
                 if(barrel_catalog["green"]["medium"].quantity == 0):
                     barrel_catalog["green"]["medium"] = None
@@ -270,6 +275,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 gold_quantity -= barrel_catalog["red"]["medium"].price
                 tot_red += barrel_catalog["red"]["medium"].ml_per_barrel
+                red_ml += barrel_catalog["red"]["small"].ml_per_barrel
                 barrel_catalog["red"]["medium"].quantity -= 1
                 if(barrel_catalog["red"]["medium"].quantity == 0):
                     barrel_catalog["red"]["medium"] = None

@@ -88,7 +88,7 @@ def get_bottle_plan():
     potion_dict = {potion_id: change for potion_id, change in potion_ledger_info}
     ml_dict = {color: change for color, change in ml_ledger_info}
     bot_list = []
-    count_dict = {potion.potion_id: 0 for potion in potion_info}
+    count_dict = {potion.potion_id: potion_dict[potion.potion_id] if potion.potion_id in potion_dict else 0 for potion in potion_info}
 
     while any(ml >= max(potion.red_ml, potion.green_ml, potion.dark_ml) for ml in ml_dict.values() for potion in potion_info) and potion_quantity <= 294:
         bottle_possible = False
