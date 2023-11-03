@@ -67,7 +67,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
 def get_bottle_plan():
     with db.engine.begin() as connection:
         potion_info = connection.execute(
-            sqlalchemy.text("SELECT potion_id, red_ml, green_ml, dark_ml FROM potion_types")
+            sqlalchemy.text("SELECT potion_id, red_ml, green_ml, dark_ml FROM potion_types WHERE potion.id != 6")
         ).fetchall()
         potion_ledger_info = connection.execute(
             sqlalchemy.text(
