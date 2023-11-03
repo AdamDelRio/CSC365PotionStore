@@ -142,7 +142,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             purchase_counts["dark"] += 1
 
     if(barrel_catalog["red"]["large"] not in (None, "null") and barrel_catalog["green"]["large"] not in (None, "null")):
-        while any(purchase_counts[color] < 6 and ((color == "green" and green_ml <= 50000 and gold_quantity >= barrel_catalog[color]["large"].price) or (color == "red" and red_ml <= 50000 and gold_quantity >= barrel_catalog[color]["large"].price)) for color in potion_color):
+        while any(purchase_counts[color] < 7 and ((color == "green" and green_ml <= 50000 and gold_quantity >= barrel_catalog[color]["large"].price) or (color == "red" and red_ml <= 50000 and gold_quantity >= barrel_catalog[color]["large"].price)) for color in potion_color):
             for color in potion_color:
                 while purchase_counts[color] < num_bought + 1 and barrel_catalog[color]["large"] is not None and gold_quantity >= barrel_catalog[color]["large"].price:
                     if color == "green":
@@ -169,7 +169,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                         purchase_counts[color] += 1
                 num_bought += 1
     elif(barrel_catalog["green"]["large"] not in (None, "null") and barrel_catalog["red"]["large"] in (None, "null")):
-        while purchase_counts["green"] < 6 and green_ml <= 50000 and gold_quantity >= barrel_catalog["green"]["large"].price:
+        while purchase_counts["green"] < 7 and green_ml <= 50000 and gold_quantity >= barrel_catalog["green"]["large"].price:
             bar_list.append({
                 "sku": "LARGE_GREEN_BARREL",
                 "quantity": 1
@@ -181,7 +181,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["green"]["large"] = None
             purchase_counts["green"] += 1
     elif(barrel_catalog["red"]["large"] not in (None, "null") and barrel_catalog["green"]["large"] in (None, "null")):
-        while purchase_counts["red"] < 6 and red_ml <= 50000 and gold_quantity >= barrel_catalog["red"]["large"].price:
+        while purchase_counts["red"] < 7 and red_ml <= 50000 and gold_quantity >= barrel_catalog["red"]["large"].price:
             bar_list.append({
                 "sku": "LARGE_RED_BARREL",
                 "quantity": 1
