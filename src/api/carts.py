@@ -178,6 +178,8 @@ class CartCheckout(BaseModel):
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     total_cost = 0
     total_bought = 0
+    potion_quantities = {}
+
     with db.engine.begin() as connection:
         num_potions_bought = connection.execute(
             sqlalchemy.text("SELECT potion_id, quantity FROM customer_orders_ledger WHERE cart_id = :cart_id"),
@@ -186,36 +188,43 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
         for row in num_potions_bought:
             potion_id, quantity = row
+            if potion_id in potion_quantities:
+                potion_quantities[potion_id] += quantity
+            else:
+                potion_quantities[potion_id] = quantity
+
+        for potion_id, quantity in potion_quantities.items():
             potions = connection.execute(
-                sqlalchemy.text("SELECT cost, red_ml, green_ml, blue_ml, dark_ml FROM potion_types WHERE potion_id = :potion_id"),
+                sqlalchemy.text("SELECT cost FROM potion_types WHERE potion_id = :potion_id"),
                 {'potion_id': potion_id}
-            ).first()
+            ).fetchone()
 
-            cost_potions = potions.cost
-            total_cost += cost_potions * quantity
-            total_bought += quantity
+            if potions:
+                cost_potions = potions.cost
+                total_cost += cost_potions * quantity
+                total_bought += quantity
 
-            connection.execute(
-                sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('checkout', :total_cost, 'Checkout operation')"),
-                {'total_cost': total_cost}
-            )
-            connection.execute(
-                sqlalchemy.text("DELETE FROM customer_orders_ledger WHERE potion_id = :potion_id AND cart_id = :cart_id"),
-                {'potion_id': potion_id, 'cart_id': cart_id}
-            )
-            connection.execute(
-                sqlalchemy.text(
-                    "INSERT INTO potion_ledger (potion_id, entry, change, description) VALUES (:potion_id, 'checkout', -:quantity, 'Checkout operation')"),
-                {'potion_id': potion_id, 'quantity': quantity}
-            )
-            connection.execute(
-            sqlalchemy.text(
-                """
-                INSERT INTO purchase_history (potion_id, cart_id, quantity)
-                VALUES (:potion_id, :cart_id, :cart_item_quantity)
-                """
-            ),
-            {'potion_id': potion_id, 'cart_id': cart_id, 'cart_item_quantity': quantity}
-        )
+                connection.execute(
+                    sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('checkout', :total_cost, 'Checkout operation')"),
+                    {'total_cost': total_cost}
+                )
+
+                connection.execute(
+                    sqlalchemy.text("DELETE FROM customer_orders_ledger WHERE potion_id = :potion_id AND cart_id = :cart_id"),
+                    {'potion_id': potion_id, 'cart_id': cart_id}
+                )
+
+                connection.execute(
+                    sqlalchemy.text(
+                        "INSERT INTO potion_ledger (potion_id, entry, change, description) VALUES (:potion_id, 'checkout', -:quantity, 'Checkout operation')"),
+                    {'potion_id': potion_id, 'quantity': quantity}
+                )
+
+                connection.execute(
+                    sqlalchemy.text(
+                        "INSERT INTO purchase_history (potion_id, cart_id, quantity) VALUES (:potion_id, :cart_id, :cart_item_quantity)"
+                    ),
+                    {'potion_id': potion_id, 'cart_id': cart_id, 'cart_item_quantity': quantity}
+                )
 
         return {"total_potions_bought": total_bought, "total_gold_paid": total_cost}
