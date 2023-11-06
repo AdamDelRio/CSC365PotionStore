@@ -25,7 +25,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
         for potion in potions_delivered:
             red_ml = potion.potion_type[0]
             green_ml = potion.potion_type[1]
-            dark_ml = potion.potion_type[2]
+            dark_ml = potion.potion_type[3]
             
 
             used_red_ml = red_ml * potion.quantity
@@ -41,7 +41,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
                 {
                     'red_ml': potion.potion_type[0],
                     'green_ml': potion.potion_type[1],
-                    'dark_ml': potion.potion_type[2]
+                    'dark_ml': potion.potion_type[3]
                 }
             ).first().potion_id
 
