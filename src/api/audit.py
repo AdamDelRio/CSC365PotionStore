@@ -30,8 +30,8 @@ def get_inventory():
                 "SELECT SUM(change) FROM gold_ledger"
             )
         ).first()[0]
-        #connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('audit fix', -250, 'Fixing audit error')"))
-        #connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('red', 'reset', 200, 'Removing all red barrels from inventory')"))
+        #connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('audit fix', -200, 'Fixing audit error')"))
+        #connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('green', 'reset', 1920, 'Removing all red barrels from inventory')"))
         #connection.execute(
         #        sqlalchemy.text("INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES (:entry, :change, :potion_id, :description)"),
         #        {'entry': 'reset', 'change': -24, 'potion_id': 4, 'description': 'Removing all potions from inventory'}

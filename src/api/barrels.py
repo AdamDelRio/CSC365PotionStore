@@ -164,7 +164,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["green"]["large"] = None
             purchase_counts["green"] += 1
 
-    while gold_quantity * 0.8 >= 0 and (potion_quantity <= 100 or red_ml < 5000 or green_ml < 5000):
+    while int(gold_quantity * 0.8) >= 0 and (potion_quantity <= 100 or red_ml < 5000 or green_ml < 5000):
         prev_gold_quantity = gold_quantity
         mls = sorted([tot_red, tot_green])
         if(gold_quantity < 120):
