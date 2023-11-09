@@ -30,12 +30,15 @@ def get_inventory():
                 "SELECT SUM(change) FROM gold_ledger"
             )
         ).first()[0]
-        #connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('audit fix', -200, 'Fixing audit error')"))
+        print(str(connection.execute(sqlalchemy.text("SELECT SUM(change) FROM ml_ledger WHERE color = 'red'")).first()[0]) + " red")
+        print(str(connection.execute(sqlalchemy.text("SELECT SUM(change) FROM ml_ledger WHERE color = 'green'")).first()[0]) + " green")
+        print(str(connection.execute(sqlalchemy.text("SELECT SUM(change) FROM ml_ledger WHERE color = 'dark'")).first()[0]) + " dark")
+        connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (entry, change, description) VALUES ('audit fix', -50, 'Fixing audit error')"))
         #connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (color, entry, change, description) VALUES ('green', 'reset', 1920, 'Removing all red barrels from inventory')"))
-        #connection.execute(
-        #        sqlalchemy.text("INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES (:entry, :change, :potion_id, :description)"),
-        #        {'entry': 'reset', 'change': -24, 'potion_id': 4, 'description': 'Removing all potions from inventory'}
-        #    )
+        connection.execute(
+                sqlalchemy.text("INSERT INTO potion_ledger (entry, change, potion_id, description) VALUES (:entry, :change, :potion_id, :description)"),
+                {'entry': 'reset', 'change': 1, 'potion_id': 1, 'description': 'Removing all potions from inventory'}
+            )
 
     return {
         "number_of_potions": result_potions,

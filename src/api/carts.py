@@ -176,11 +176,13 @@ class CartCheckout(BaseModel):
 
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
-    total_cost = 0
-    total_bought = 0
-    potion_quantities = {}
-
     with db.engine.begin() as connection:
+
+        total_cost = 0
+        total_bought = 0
+        potion_quantities = {}
+
+        connection.execute(sqlalchemy.text("DELETE FROM customer_orders_ledger WHERE timestamp < NOW() - INTERVAL '1' hour"))
         num_potions_bought = connection.execute(
             sqlalchemy.text("SELECT potion_id, quantity FROM customer_orders_ledger WHERE cart_id = :cart_id"),
             {'cart_id': cart_id}
