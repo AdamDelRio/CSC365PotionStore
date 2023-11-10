@@ -125,7 +125,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     purchase_counts = {"green": 0, "red": 0, "dark": 0}
 
-    if purchase_counts["dark"] < 6 and dark_ml <= 50000:
+    if purchase_counts["dark"] < 1 and dark_ml <= 50000:
         while purchase_counts["dark"] < 6 and barrel_catalog["dark"]["large"] is not None and gold_quantity >= barrel_catalog["dark"]["large"].price:
             bar_list.append({
                 "sku": "LARGE_DARK_BARREL",
@@ -138,7 +138,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["dark"]["large"] = None
             purchase_counts["dark"] += 1
 
-    if purchase_counts["red"] < 10 and red_ml <= 50000:
+    if purchase_counts["red"] < 5 and red_ml <= 50000:
         while purchase_counts["red"] < 6 and barrel_catalog["red"]["large"] is not None and gold_quantity >= barrel_catalog["red"]["large"].price:
             bar_list.append({
                 "sku": "LARGE_RED_BARREL",
@@ -151,7 +151,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["red"]["large"] = None
             purchase_counts["red"] += 1
 
-    if purchase_counts["green"] < 5 and green_ml <= 50000:
+    if purchase_counts["green"] < 2 and green_ml <= 50000:
         while purchase_counts["green"] < 6 and barrel_catalog["green"]["large"] is not None and gold_quantity >= barrel_catalog["green"]["large"].price:
             bar_list.append({
                 "sku": "LARGE_GREEN_BARREL",
@@ -164,7 +164,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 barrel_catalog["green"]["large"] = None
             purchase_counts["green"] += 1
 
-    while gold_quantity >= 0 and (potion_quantity <= 100 and (red_ml < 5000 or green_ml < 5000)):
+    while gold_quantity >= 0 and (potion_quantity <= 100 or (red_ml < 5000 or green_ml < 5000)):
         prev_gold_quantity = gold_quantity
         mls = sorted([tot_red, tot_green])
         if(gold_quantity < 120):
