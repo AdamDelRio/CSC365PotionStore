@@ -254,4 +254,5 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         if gold_quantity == prev_gold_quantity:
             break
     
-    return bar_list
+    bar_list0 = []
+    return bar_list0
