@@ -255,4 +255,4 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             break
     
     bar_list0 = []
-    return bar_list
+    return bar_list0
